@@ -6,19 +6,43 @@ require 'httparty'
 require 'active_support/all'
 
 require_relative 'chrome.rb'
+require_relative 'user.rb'
+require_relative 'post.rb'
+require_relative 'functions.rb'
+
+$stdout.sync = true
 
 BROWSER = create_chrome(headless: false, typ: 'desktop')
 
-BROWSER.navigate.to 'https://palaman.livejournal.com/2019/06/'
 
-expand_links = BROWSER.find_elements(css: '.viewsubjects a')
-expand_links.each do |link|
-    link.click
-    while (span = BROWSER.find_elements(css: '.comment-links span').detect{|s| s.attribute('id').start_with?('expand_')})
-        a = span.find_element(css: 'a')
-        comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
-        puts "Expanding #{comment_id}..."
-        BROWSER.execute_script("arguments[0].click();", a)
-        sleep 1
-    end
+user = User.new(ARGV[0])
+
+# puts "User: #{user.username}"
+
+if (post_url = ARGV[0]) && post_url.start_with?('https://')
+    puts "Fetching post #{post_url}"
+    # post = Post.new('https://palaman.livejournal.com/410686.html')
+    post = Post.new(post_url)
+    post.save_page_with_expanded_comments(BROWSER)
 end
+
+# post_urls = user.get_post_urls
+
+# puts "Found #{post_urls} posts"
+
+
+# puts user.get_post_urls_from_archive_page(2018, 11)
+
+
+# BROWSER.navigate.to 'https://palaman.livejournal.com/2019/06/'
+#
+# BROWSER.find_elements(css: '.viewsubjects a').each do |link|
+#     link.click
+#     break
+# end
+#
+# Bot.expand_all_comments_on_page
+
+
+# sleep 100
+

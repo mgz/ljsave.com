@@ -3,3 +3,4 @@ target
 *.iml
 *.log
 /src/tmp/chrome_datadirs
+/out

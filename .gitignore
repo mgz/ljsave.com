@@ -2,3 +2,4 @@ target
 .idea
 *.iml
 *.log
+/src/tmp/chrome_datadirs

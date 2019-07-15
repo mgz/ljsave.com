@@ -64,6 +64,18 @@ class User
         end
         
         Process.kill(9, -Process.getpgid(http_server_thread))
-
+    end
+    
+    def create_index_file(posts)
+        page_title = @username
+        body = '<ul>'
+        posts.each do |post|
+            body << '<li>'
+            body << "<a href='files/#{post.user.username}/#{post.post_id}.html'>#{post.title}</a> "
+            body << "<span class='text-muted'>#{post.time.strftime('%Y, %d %b')} &middot; <small>#{post.time.strftime('%H:%M')}</small></span>"
+            body << '</li>'
+        end
+        body << '</ul>'
+        File.write("out/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
     end
 end

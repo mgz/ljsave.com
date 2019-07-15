@@ -46,7 +46,24 @@ class User
     def get_post_urls_from_archive_page(year, month)
         html = Nokogiri::HTML(open("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
         urls =  html.css('.viewsubjects a').map{|a| a.attribute('href').value}
-        puts "    #{urls.size} for #{year}.#{month}"
+        # puts "    #{urls.size} for #{year}.#{month}"
         return urls
+    end
+
+    def load_assets
+        http_port = 5011
+        http_server_thread = Process.spawn "cd out/#{@username} && ruby -run -e httpd . -p #{http_port}", pgroup: true
+        sleep 3
+        
+        Parallel.each(Dir.glob("out/#{@username}/*.html"), in_processes: 4) do |html_file|
+        
+         # do |html_file|
+            url = "http://localhost:#{http_port}/#{File.basename(html_file)}"
+            puts url
+            `wget -q -P out/#{@username}/out -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
+        end
+        
+        Process.kill(9, -Process.getpgid(http_server_thread))
+
     end
 end

@@ -2,8 +2,16 @@ require 'loofah'
 require 'sanitize'
 
 class Post
+    attr_reader :url, :title, :time
     def initialize(url)
         @url = url
+    end
+    
+    def self.save_posts(urls, browser)
+        urls.each do |url|
+            post = Post.new(url)
+            post.save_page_with_expanded_comments(browser)
+        end
     end
     
     def save_page_with_expanded_comments(browser)
@@ -20,6 +28,9 @@ class Post
         puts "Post has #{page_count} pages"
 
         html = Nokogiri::HTML(contents)
+        
+        init_title_and_time(html)
+        
         html.css('.b-pager')&.remove
         html.css('.b-xylem')[1]&.remove
         html.css('.b-xylem-cell')&.remove
@@ -51,29 +62,54 @@ class Post
         contents = html.to_html
         save_page(contents)
     end
+    
+    def get_expand_links(browser)
+        expand_links = browser.find_elements(css: '#comments .b-leaf-actions li.b-leaf-actions-item a').select{|a|
+            begin
+                a.displayed? && a.text.downcase.in?(%w{expand развернуть})
+            rescue Selenium::WebDriver::Error::StaleElementReferenceError
+            end
+        }
+        
+        links_at_depths = {}
+        
+        expand_links.each do |link|
+            parent = link.find_element(xpath: '../../../../../..')
+            margin_left = 0
+            if parent.attribute('style').present?
+                margin_left = parent.style('margin-left')
+            else
+                margin_left = link.find_element(xpath: '../../../../../../..').style('margin-left')
+            end
+
+            depth = margin_left[/(\d+)/, 1].to_i / 30
+            links_at_depths[depth] ||= []
+            links_at_depths[depth] << link
+        end
+        return links_at_depths[links_at_depths.keys.min] || []
+    end
 
     def expand_all_comments_on_page(browser)
-        while (a = browser.find_elements(css: '#comments a').detect{|a|
+        while (links = get_expand_links(browser)).any?
+            puts "Got #{links.size} links to expand"
+            Parallel.each(links, in_processes: 6) do |a|
+                # puts span.attribute('style')
+                # a = span.find_element(css: 'a')
+                # comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
+                # print "Expanding #{a.attribute('href')}..."
                 begin
-                    a.displayed? && a.text.downcase.in?(%w{expand развернуть})
-                rescue Selenium::WebDriver::Error::StaleElementReferenceError
+                    browser.execute_script("arguments[0].click();", a)
+
+                    while a.displayed?
+                        sleep 0.1
+                    end
+                rescue Selenium::WebDriver::Error::StaleElementReferenceError, EOFError
+                    # Element is gone, fine.
                 end
-        })
-            # puts span.attribute('style')
-            # a = span.find_element(css: 'a')
-            # comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
-            print "Expanding #{a.attribute('href')}..."
-            browser.execute_script("arguments[0].click();", a)
-        
-            begin
-                while a.displayed?
-                    sleep 0.1
-                end
-            rescue Selenium::WebDriver::Error::StaleElementReferenceError
-                # Element is gone, fine.
+                puts ' done.'
             end
-            puts ' done.'
         end
+        
         puts 'Everything expanded'
         return browser.page_source
     end
@@ -97,7 +133,7 @@ class Post
         contents = doc.to_html
         
         FileUtils.mkdir_p("out/#{self.user.username}")
-        File.open("out/#{self.user.username}/#{self.post_id}.html", 'w') do |file|
+        File.open(downloaded_file_path, 'w') do |file|
             file << contents
         end
     end
@@ -108,5 +144,16 @@ class Post
     
     def post_id
         return @url[%r{(\d+)\.html}, 1]
+    end
+    
+    def init_title_and_time(html_doc)
+        @title = html_doc.at_css('article h1')&.text&.strip
+        
+        time_str = html_doc.at_css('time.published').text.strip
+        @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+    end
+    
+    def downloaded_file_path
+        return "out/#{self.user.username}/#{self.post_id}.html"
     end
 end

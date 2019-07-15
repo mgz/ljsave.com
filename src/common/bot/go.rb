@@ -14,16 +14,20 @@ $stdout.sync = true
 
 BROWSER = create_chrome(headless: false, typ: 'desktop')
 
-
-user = User.new(ARGV[0])
-
-# puts "User: #{user.username}"
-
 if (post_url = ARGV[0]) && post_url.start_with?('https://')
     puts "Fetching post #{post_url}"
     # post = Post.new('https://palaman.livejournal.com/410686.html')
     post = Post.new(post_url)
     post.save_page_with_expanded_comments(BROWSER)
+elsif (username = ARGV[0])
+    user = User.new(username)
+    puts "User: #{user.username}"
+    post_urls = user.get_post_urls
+    puts "Found #{post_urls.size} posts"
+    
+    Post.save_posts(post_urls[-5, 5], BROWSER)
+    
+    user.load_assets
 end
 
 # post_urls = user.get_post_urls

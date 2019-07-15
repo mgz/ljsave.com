@@ -36,7 +36,7 @@ class User
         end
         
         results = Parallel.map(years_and_months, in_threads: 16) do |year, month|
-            # puts "Now at #{year}.#{month}"
+            # putsd "Now at #{year}.#{month}"
             get_post_urls_from_archive_page(year, month)
         end
         
@@ -46,21 +46,22 @@ class User
     def get_post_urls_from_archive_page(year, month)
         html = Nokogiri::HTML(open("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
         urls =  html.css('.viewsubjects a').map{|a| a.attribute('href').value}
-        # puts "    #{urls.size} for #{year}.#{month}"
+        # putsd "    #{urls.size} for #{year}.#{month}"
         return urls
     end
 
-    def load_assets
+    def load_assets(posts)
         http_port = 5011
-        http_server_thread = Process.spawn "cd out/#{@username} && ruby -run -e httpd . -p #{http_port}", pgroup: true
+        FileUtils.mkdir_p("out")
+        http_server_thread = Process.spawn "cd cache && ruby -run -e httpd . -p #{http_port}  >/dev/null 2>/dev/null", pgroup: true
         sleep 3
         
-        Parallel.each(Dir.glob("out/#{@username}/*.html"), in_processes: 4) do |html_file|
         
-         # do |html_file|
-            url = "http://localhost:#{http_port}/#{File.basename(html_file)}"
-            puts url
-            `wget -q -P out/#{@username}/out -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
+        Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
+            url = "http://localhost:#{http_port}/#{post.user.username}/#{File.basename(post.downloaded_file_path)}"
+            putsd url
+            `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
+            # FileUtils.rm(html_file)
         end
         
         Process.kill(9, -Process.getpgid(http_server_thread))
@@ -77,5 +78,6 @@ class User
         end
         body << '</ul>'
         File.write("out/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
+        FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "out/files/")
     end
 end

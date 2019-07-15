@@ -7,25 +7,45 @@ class Post
         @url = url
     end
     
-    def self.save_posts(urls, browser)
-        urls.each do |url|
+    def self.save_posts(urls)
+        posts = []
+        browsers = []
+        Parallel.each(urls, in_threads: 8, progress: "Saving #{urls.size} posts") do |url|
+        # urls.each do |url|
             post = Post.new(url)
+            
+            if File.exists?(post.downloaded_file_path)
+                putsd "Skipping #{post.url}"
+                
+                html = Nokogiri::HTML(open(post.downloaded_file_path))
+                post.init_title_and_time(html)
+                
+                posts << post
+                next
+            end
+            
+            browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
+            browsers[Parallel.worker_number] ||= browser
+            
             post.save_page_with_expanded_comments(browser)
+            posts << post
         end
+        return posts
     end
     
     def save_page_with_expanded_comments(browser)
         browser.navigate.to(@url)
         
         if (checkbox = browser.find_element(id: 'view-own')).attribute('checked') != 'true'
-            puts 'Setting READABILITY mode'
-            checkbox.click
+            putsd 'Setting READABILITY mode'
+            browser.execute_script("arguments[0].click();", checkbox)
+            # checkbox.click
         end
         
         contents = expand_all_comments_on_page(browser)
 
         page_count = browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
-        puts "Post has #{page_count} pages"
+        putsd "Post has #{page_count} pages"
 
         html = Nokogiri::HTML(contents)
         
@@ -75,7 +95,6 @@ class Post
         
         expand_links.each do |link|
             parent = link.find_element(xpath: '../../../../../..')
-            margin_left = 0
             if parent.attribute('style').present?
                 margin_left = parent.style('margin-left')
             else
@@ -91,9 +110,9 @@ class Post
 
     def expand_all_comments_on_page(browser)
         while (links = get_expand_links(browser)).any?
-            puts "Got #{links.size} links to expand"
+            putsd "Got #{links.size} links to expand"
             Parallel.each(links, in_processes: 6) do |a|
-                # puts span.attribute('style')
+                # putsd span.attribute('style')
                 # a = span.find_element(css: 'a')
                 # comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
                 # print "Expanding #{a.attribute('href')}..."
@@ -103,14 +122,15 @@ class Post
                     while a.displayed?
                         sleep 0.1
                     end
-                rescue Selenium::WebDriver::Error::StaleElementReferenceError, EOFError
+                rescue Selenium::WebDriver::Error::StaleElementReferenceError
                     # Element is gone, fine.
+                rescue Errno::EPIPE, EOFError
                 end
-                puts ' done.'
+                putsd ' done.'
             end
         end
         
-        puts 'Everything expanded'
+        putsd 'Everything expanded'
         return browser.page_source
     end
     

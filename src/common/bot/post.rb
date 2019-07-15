@@ -132,7 +132,7 @@ class Post
         doc.css('header').remove
         contents = doc.to_html
         
-        FileUtils.mkdir_p("out/#{self.user.username}")
+        FileUtils.mkdir_p("cache/#{self.user.username}")
         File.open(downloaded_file_path, 'w') do |file|
             file << contents
         end
@@ -154,6 +154,6 @@ class Post
     end
     
     def downloaded_file_path
-        return "out/#{self.user.username}/#{self.post_id}.html"
+        return "cache/#{self.user.username}/#{self.post_id}.html"
     end
 end

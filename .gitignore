@@ -4,3 +4,4 @@ target
 *.log
 /src/tmp/chrome_datadirs
 /out
+/cache

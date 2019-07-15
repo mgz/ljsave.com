@@ -6,13 +6,11 @@ require 'time'
 require 'active_support/all'
 
 def create_chrome(headless: true, typ: 'desktop')
-    `killall chromium-browser > /dev/null 2>&1`
-    current_dir = File.expand_path(File.dirname(__FILE__))
-    datadir = Pathname(current_dir).dirname.to_s
-    datadir = Pathname(datadir).dirname.to_s
-    datadir = "#{datadir}/tmp/chrome_datadirs/"
-    # `rm -Rf "#{datadir}/Local State"`
-    # `rm -Rf "#{datadir}/Preferences"`
+    # `killall chromium-browser > /dev/null 2>&1`
+    # current_dir = File.expand_path(File.dirname(__FILE__))
+    # datadir = Pathname(current_dir).dirname.to_s
+    # datadir = Pathname(datadir).dirname.to_s
+    # datadir = "#{datadir}/tmp/chrome_datadirs/"
     
     options = Selenium::WebDriver::Chrome::Options.new #/usr/bin/google-chrome
     options.add_argument('--ignore-certificate-errors')
@@ -37,7 +35,7 @@ def create_chrome(headless: true, typ: 'desktop')
     # options.add_argument('--disable-extensions')
     # options.add_argument('--proxy-server=socks5://localhost:7777')
     #   options.add_argument('--proxy-server=77.111.245.10:443')
-    options.add_argument("--user-data-dir=#{datadir}")
+    # options.add_argument("--user-data-dir=#{datadir}")
     options.add_argument('--headless') unless headless == false
     if typ == 'iphone'
         options.add_argument('--user-agent="Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"')

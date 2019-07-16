@@ -13,6 +13,9 @@ require_relative 'functions.rb'
 $stdout.sync = true
 
 BROWSER = create_chrome(headless: true, typ: 'desktop')
+if ENV['CLEAR_CACHE'] == '1'
+    FileUtils.rm_rf('cache')
+end
 
 if (post_url = ARGV[0]) && post_url.start_with?('https://')
     putsd "Fetching post #{post_url}"
@@ -28,8 +31,10 @@ elsif (username = ARGV[0])
     # posts = Post.save_posts(post_urls[-5, 3])
     posts = Post.save_posts(post_urls)
     
-    user.load_assets(posts)
-    user.create_index_file(posts)
+    unless ENV['NO_WGET'] == '1'
+        user.load_assets(posts)
+        user.create_index_file(posts)
+    end
 end
 
 # post_urls = user.get_post_urls

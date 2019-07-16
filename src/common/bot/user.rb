@@ -80,7 +80,9 @@ class User
         posts.each do |post|
             body << '<li>'
             body << "<a href='files/#{post.user.username}/#{post.post_id}.html'>#{post.title}</a> "
-            body << "<span class='text-muted'>#{post.time.strftime('%Y, %d %b')} &middot; <small>#{post.time.strftime('%H:%M')}</small></span>"
+            if post.time
+                body << "<span class='text-muted'>#{post.time.strftime('%Y, %d %b')} &middot; <small>#{post.time.strftime('%H:%M')}</small></span>"
+            end
             body << '</li>'
         end
         body << '</ul>'

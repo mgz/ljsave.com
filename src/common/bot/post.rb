@@ -117,6 +117,10 @@ class Post
     end
 
     def expand_all_comments_on_page(browser)
+        while browser.find_elements(css: '#comments.b-grove-loading').any?
+            puts 'Still have preloader, waiting'
+            sleep 0.3
+        end
         while (links = get_expand_links(browser)).any?
             putsd "Got #{links.size} links to expand"
             Parallel.each(links, in_processes: 6) do |a|

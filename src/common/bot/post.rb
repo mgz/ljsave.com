@@ -154,6 +154,9 @@ class Post
         doc.css('script').remove                             # Remove <script>…</script>
         doc.xpath("//@*[starts-with(name(),'on')]").remove   # Remove on____ attributes
         doc.css('header').remove
+        # Expand spoilers
+        doc.css('.lj-spoiler').add_class('lj-spoiler-opened')
+        
         contents = doc.to_html
         
         FileUtils.mkdir_p("cache/#{self.user.username}")

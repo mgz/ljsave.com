@@ -154,6 +154,9 @@ class Post
         doc.css('script').remove                             # Remove <script>…</script>
         doc.xpath("//@*[starts-with(name(),'on')]").remove   # Remove on____ attributes
         doc.css('header').remove
+        doc.css('.b-singlepost-addfriend-link')&.remove
+        doc.css("div[suggestion-for-unlogged]")&.remove
+        
         # Expand spoilers
         doc.css('.lj-spoiler').add_class('lj-spoiler-opened')
         

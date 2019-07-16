@@ -25,7 +25,7 @@ elsif (username = ARGV[0])
     post_urls = user.get_post_urls
     putsd "Found #{post_urls.size} posts"
     
-    # posts = Post.save_posts(post_urls[-5, 1])
+    # posts = Post.save_posts(post_urls[-5, 3])
     posts = Post.save_posts(post_urls)
     
     user.load_assets(posts)
@@ -49,6 +49,6 @@ end
 #
 # Bot.expand_all_comments_on_page
 
-
+sleep 5
 # sleep 100
 

@@ -45,7 +45,7 @@ class User
     
     def get_post_urls_from_archive_page(year, month)
         html = Nokogiri::HTML(read_url("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
-        urls =  html.css('.viewsubjects a').map{|a| a.attribute('href').value}
+        urls =  html.css('a').select{|a| a.attribute('href') =~ %r{://#{@username}.livejournal.com/\d+.html}}.map{|a| a.attribute('href').value}
         # putsd "    #{urls.size} for #{year}.#{month}"
         return urls
     end

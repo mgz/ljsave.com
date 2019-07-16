@@ -92,10 +92,16 @@ class Post
     end
     
     def get_expand_links(browser)
-        expand_links = browser.find_elements(css: '#comments .b-leaf-actions li.b-leaf-actions-item a').select{|a|
+        # putsd 'Finding expand links...'
+        browser.manage.timeouts.implicit_wait = 0
+        expand_links = browser.find_elements(css: '#comments .b-leaf-footer .b-leaf-actions-expandchilds a').select{|a|
             begin
-                a.displayed? && a.text.downcase.in?(%w{expand развернуть})
+                # putsd 'Checking link...'
+                # a.text.downcase.in?(%w{expand развернуть}) && a.displayed?
+                # a.displayed?
+                true
             rescue Selenium::WebDriver::Error::StaleElementReferenceError
+                putsd ' got exception...'
             end
         }
         

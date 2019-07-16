@@ -40,15 +40,15 @@ class Post
     
     def save_page_with_expanded_comments(browser)
         browser.navigate.to(@url)
-        unless browser.manage.all_cookies.any?{|c| c[:name] == 'prop_opt_readability'}
-            browser.manage.add_cookie(name: "prop_opt_readability", value: "1", expires: 10.days.from_now)
-            browser.navigate.to(@url)
-        end
-
-        # if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
-        #     putsd 'Setting READABILITY mode'
-        #     browser.execute_script("arguments[0].click();", checkbox)
+        # ap browser.manage.all_cookies
+        # unless browser.manage.all_cookies.any?{|c| c[:name] == 'prop_opt_readability'}
+        #     browser.manage.add_cookie(name: "prop_opt_readability", value: "1", expires: 10.days.from_now)
+        #     browser.navigate.to(@url)
         # end
+
+        if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
+            putsd 'Setting READABILITY mode'
+            browser.execute_script("arguments[0].click();", checkbox)
         
         contents = expand_all_comments_on_page(browser)
 

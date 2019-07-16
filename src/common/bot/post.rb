@@ -1,5 +1,7 @@
 require 'loofah'
 require 'sanitize'
+require "awesome_print"
+
 
 class Post
     attr_reader :url, :title, :time

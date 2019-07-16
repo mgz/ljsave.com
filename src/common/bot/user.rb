@@ -11,7 +11,7 @@ class User
 
     def get_date_range
         start_year = 2001
-        start_year = 2018
+        # start_year = 2018
         start_month = 1
         
         end_year = Date.today.year

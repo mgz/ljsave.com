@@ -27,7 +27,12 @@ class Post
             browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
             browsers[Parallel.worker_number] ||= browser
             
-            post.save_page_with_expanded_comments(browser)
+            begin
+                post.save_page_with_expanded_comments(browser)
+            rescue => e
+                puts "#{e.inspect} for #{url}"
+                # throw e
+            end
             posts << post
         end
         return posts
@@ -167,10 +172,15 @@ class Post
     end
     
     def init_title_and_time(html_doc)
-        @title = html_doc.at_css('article h1')&.text&.strip
-        
-        time_str = html_doc.at_css('time.published').text.strip
-        @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+        begin
+            @title = html_doc.at_css('article h1')&.text&.strip
+            
+            time_str = html_doc.at_css('time.published').text.strip
+            @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+        rescue => e
+            puts "Error for #{self.url}:"
+            puts e.inspect
+        end
     end
     
     def downloaded_file_path

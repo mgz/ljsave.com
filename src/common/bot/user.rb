@@ -52,7 +52,8 @@ class User
 
     def load_assets(posts)
         http_port = 5011
-        FileUtils.mkdir_p("out")
+        FileUtils.mkdir_p("out/files")
+        `pkill -f "p #{http_port}"`
         http_server_thread = Process.spawn "cd cache && ruby -run -e httpd . -p #{http_port}  >/dev/null 2>/dev/null", pgroup: true
         sleep 3
         
@@ -60,10 +61,16 @@ class User
         Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
             url = "http://localhost:#{http_port}/#{post.user.username}/#{File.basename(post.downloaded_file_path)}"
             putsd url
-            `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
+            # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url} >/dev/null 2>/dev/null `
+            `wget -nc -q -nv --timeout=2 -P out/files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
             # FileUtils.rm(html_file)
         end
-        
+
+        # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links -i cache/url_list.txt >/dev/null 2>/dev/null`
+        # `cat cache/url_list.txt | parallel --gnu "wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links {} >/dev/null 2>/dev/null"`
+        # `xargs -n 1 -P 4 -i wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links {} >/dev/null 2>/dev/null < cache/url_list.txt`
+
+
         Process.kill(9, -Process.getpgid(http_server_thread))
     end
     

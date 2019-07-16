@@ -130,7 +130,7 @@ class Post
                     # Element is gone, fine.
                 rescue Errno::EPIPE, EOFError
                 end
-                putsd ' done.'
+                # putsd ' done.'
             end
         end
         

@@ -10,8 +10,8 @@ class Post
     def self.save_posts(urls)
         posts = []
         browsers = []
-        Parallel.each(urls, in_threads: 8, progress: "Saving #{urls.size} posts") do |url|
-        # urls.each do |url|
+        # Parallel.each(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
+        urls.each do |url|
             post = Post.new(url)
             
             if File.exists?(post.downloaded_file_path)
@@ -24,15 +24,18 @@ class Post
                 next
             end
             
-            browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
-            browsers[Parallel.worker_number] ||= browser
-            
+            # browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
+            # browsers[Parallel.worker_number] ||= browser
+
+            browser = create_chrome(headless: true, typ: 'desktop')
+
             begin
                 post.save_page_with_expanded_comments(browser)
             rescue => e
                 puts "#{e.inspect} for #{url}"
                 # throw e
             end
+            browser.quit
             posts << post
         end
         return posts
@@ -49,6 +52,7 @@ class Post
         if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
             putsd 'Setting READABILITY mode'
             browser.execute_script("arguments[0].click();", checkbox)
+        end
         
         contents = expand_all_comments_on_page(browser)
 

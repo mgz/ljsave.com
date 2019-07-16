@@ -12,12 +12,12 @@ require_relative 'functions.rb'
 
 $stdout.sync = true
 
-BROWSER = create_chrome(headless: true, typ: 'desktop')
 if ENV['CLEAR_CACHE'] == '1'
     FileUtils.rm_rf('cache')
 end
 
 if (post_url = ARGV[0]) && post_url.start_with?('https://')
+    BROWSER = create_chrome(headless: true, typ: 'desktop')
     putsd "Fetching post #{post_url}"
     # post = Post.new('https://palaman.livejournal.com/410686.html')
     post = Post.new(post_url)
@@ -54,6 +54,7 @@ end
 #
 # Bot.expand_all_comments_on_page
 
+puts 'Sleeping'
 sleep 5
-# sleep 100
+# sleep 1000
 

@@ -44,11 +44,11 @@ def create_chrome(headless: true, typ: 'desktop')
     if headless != false && ENV['NO_HEADLESS'] != '1'
         options.add_argument('--headless')
     end
-    
-    options.add_argument(%{--proxy-server=#{ENV['PROXY']}}) if ENV['PROXY']
-    
-    if typ == 'iphone'
-        options.add_argument('--user-agent="Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"')
+
+    if ENV['PROXY']
+        options.add_argument(%{--proxy-server=#{ENV['PROXY']}})
+        options.add_argument(%{--user-agent="#{OPERA_USERAGENT}"})
     end
+    
     return Selenium::WebDriver.for :chrome, options: options
 end

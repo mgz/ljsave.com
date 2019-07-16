@@ -78,6 +78,7 @@ class User
         page_title = @username
         body = '<ul>'
         posts.each do |post|
+            next unless post.title.present?
             body << '<li>'
             body << "<a href='files/#{post.user.username}/#{post.post_id}.html'>#{post.title}</a> "
             if post.time

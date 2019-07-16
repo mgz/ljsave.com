@@ -132,7 +132,7 @@ class Post
                     browser.execute_script("arguments[0].click();", a)
 
                     while a.displayed?
-                        sleep 0.1
+                        sleep 0.3
                     end
                 rescue Selenium::WebDriver::Error::StaleElementReferenceError
                     # Element is gone, fine.

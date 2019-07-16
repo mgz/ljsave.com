@@ -178,7 +178,7 @@ class Post
     
     def init_title_and_time(html_doc)
         begin
-            @title = html_doc.at_css('article h1')&.text&.strip
+            @title = html_doc.at_css('h1')&.text&.strip
             
             time_str = html_doc.at_css('time.published').text.strip
             @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')

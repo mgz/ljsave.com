@@ -34,6 +34,8 @@ def create_chrome(headless: true, typ: 'desktop')
     options.add_argument('--disable-features=site-per-process') # Disables OOPIF
     options.add_argument('--blink-settings=imagesEnabled=false')
     
+    options.add_argument('--disk-cache-size=2147483648')
+    
     # options.add_argument('--disable-extensions')
     # options.add_argument('--proxy-server=socks5://localhost:7777')
     #   options.add_argument('--proxy-server=77.111.245.10:443')

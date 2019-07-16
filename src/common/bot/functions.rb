@@ -19,3 +19,11 @@ end
 def putsd(*args)
     puts args
 end
+
+def read_url(url, opts: {})
+    if (proxy = ENV['PROXY'])
+        proxy = "http://#{proxy}" unless proxy.start_with?('http://')
+        opts[:proxy] = URI.parse(proxy)
+    end
+    return open(url, opts).read
+end

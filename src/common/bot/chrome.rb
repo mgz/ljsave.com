@@ -36,7 +36,13 @@ def create_chrome(headless: true, typ: 'desktop')
     # options.add_argument('--proxy-server=socks5://localhost:7777')
     #   options.add_argument('--proxy-server=77.111.245.10:443')
     # options.add_argument("--user-data-dir=#{datadir}")
-    options.add_argument('--headless') unless headless == false
+    
+    if headless != false && ENV['NO_HEADLESS'] != '1'
+        options.add_argument('--headless')
+    end
+    
+    options.add_argument(%{--proxy-server=#{ENV['PROXY']}}) if ENV['PROXY']
+    
     if typ == 'iphone'
         options.add_argument('--user-agent="Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"')
     end

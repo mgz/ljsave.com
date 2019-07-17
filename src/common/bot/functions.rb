@@ -17,7 +17,7 @@ module Bot
 end
 
 def putsd(*args)
-    if ENV['DEBUG'] == '1'
+    if ENV['DEBUG_LOG'] == '1'
         puts args
     end
 end

@@ -177,6 +177,7 @@ class Post
         doc.xpath("//@*[starts-with(name(),'on')]").remove   # Remove on____ attributes
         doc.css('header').remove
         doc.css('.b-singlepost-addfriend-link')&.remove
+        doc.css('.b-leaf-actions')&.remove
         doc.css("div[suggestion-for-unlogged]")&.remove
         
         # Expand spoilers

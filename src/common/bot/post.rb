@@ -148,7 +148,8 @@ class Post
                     end
                 rescue Selenium::WebDriver::Error::StaleElementReferenceError
                     # Element is gone, fine.
-                rescue Errno::EPIPE, EOFError
+                rescue Errno::EPIPE, EOFError => e
+                    putsd e
                 end
                 # putsd ' done.'
             end

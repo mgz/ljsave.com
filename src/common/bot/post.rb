@@ -13,7 +13,7 @@ class Post
         posts = []
         browsers = []
         # Parallel.each(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
-        bar = TTY::ProgressBar.new("Downloading #{urls.size} :eta [:bar] :elapsed", total: urls.size)
+        bar = TTY::ProgressBar.new("Downloading #{urls.size} | ETA: :eta [:bar] :elapsed", total: urls.size)
         urls.each do |url|
             post = Post.new(url)
             

@@ -101,59 +101,82 @@ class Post
     def get_expand_links(browser)
         # putsd 'Finding expand links...'
         browser.manage.timeouts.implicit_wait = 0
-        expand_links = browser.find_elements(css: '#comments .b-leaf-footer .b-leaf-actions-expandchilds a').select{|a|
-            begin
-                # putsd 'Checking link...'
-                # a.text.downcase.in?(%w{expand развернуть}) && a.displayed?
-                # a.displayed?
-                true
-            rescue Selenium::WebDriver::Error::StaleElementReferenceError
-                putsd ' got exception...'
-            end
-        }
+        expand_links = browser.find_elements(css: '#comments .b-leaf-footer .b-leaf-actions-expandchilds a')
+        expand_links += browser.find_elements(css: '#comments .b-leaf-collapsed .b-leaf-header .b-leaf-actions-expand a')
+        
         
         links_at_depths = {}
         
         expand_links.each do |link|
-            parent = link.find_element(xpath: '../../../../../..')
-            if parent.attribute('style').present?
-                margin_left = parent.style('margin-left')
-            else
-                margin_left = link.find_element(xpath: '../../../../../../..').style('margin-left')
+            begin
+                parent = link.find_element(xpath: '../../../../../..')
+                if parent.attribute('style').present?
+                    margin_left = parent.style('margin-left')
+                else
+                    margin_left = link.find_element(xpath: '../../../../../../..').style('margin-left')
+                end
+    
+                depth = margin_left[/(\d+)/, 1].to_i / 30
+                links_at_depths[depth] ||= []
+                links_at_depths[depth] << link
+            rescue Selenium::WebDriver::Error::StaleElementReferenceError
+                # Link is gone
             end
-
-            depth = margin_left[/(\d+)/, 1].to_i / 30
-            links_at_depths[depth] ||= []
-            links_at_depths[depth] << link
         end
         return links_at_depths[links_at_depths.keys.min] || []
     end
 
     def expand_all_comments_on_page(browser)
         while browser.find_elements(css: '#comments.b-grove-loading').any?
-            puts 'Still have preloader, waiting'
+            putsd 'Still have preloader, waiting'
             sleep 0.3
         end
         while (links = get_expand_links(browser)).any?
             putsd "Got #{links.size} links to expand"
-            Parallel.each(links, in_processes: 6) do |a|
-                # putsd span.attribute('style')
-                # a = span.find_element(css: 'a')
-                # comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
-                # print "Expanding #{a.attribute('href')}..."
+            
+            links.each do |link|
                 begin
-                    browser.execute_script("arguments[0].click();", a)
-
-                    while a.displayed?
-                        sleep 0.3
-                    end
+                    # putsd '    Clicking...'
+                    link.click
+                rescue Selenium::WebDriver::Error::ElementClickInterceptedError
+                    putsd '    Click intercepted'
                 rescue Selenium::WebDriver::Error::StaleElementReferenceError
                     # Element is gone, fine.
-                rescue Errno::EPIPE, EOFError => e
-                    putsd e
+                    putsd '    Element gone'
+                rescue Selenium::WebDriver::Error::ElementNotInteractableError
+                    putsd '    Element not interactable'
                 end
-                # putsd ' done.'
             end
+            
+            
+            
+            sleep 1
+            
+            # Parallel.each(links, in_threads: 6) do |a|
+            #     # putsd span.attribute('style')
+            #     # a = span.find_element(css: 'a')
+            #     # comment_id = a.attribute('onclick')[/'(\d+)'/, 1]
+            #     putsd "Expanding ..."
+            #     begin
+            #         a.click
+            #         # browser.execute_script("arguments[0].click();", a)
+            #
+            #         times_slept = 0
+            #         while a.displayed?
+            #             sleep 0.3
+            #             times_slept += 1
+            #             raise 'Sleeping too long' if times_slept > 10
+            #         end
+            #     rescue Selenium::WebDriver::Error::ElementClickInterceptedError
+            #         putsd '    Click intercepted'
+            #     rescue Selenium::WebDriver::Error::StaleElementReferenceError
+            #         # Element is gone, fine.
+            #         putsd '    Element gone'
+            #     # rescue Errno::EPIPE, EOFError => e
+            #     #     putsd e
+            #     end
+            #     # putsd ' done.'
+            # end
         end
         
         putsd 'Everything expanded'

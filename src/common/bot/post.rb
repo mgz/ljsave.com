@@ -1,5 +1,3 @@
-require 'loofah'
-require 'sanitize'
 require "awesome_print"
 
 require 'tty-progressbar'

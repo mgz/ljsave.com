@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+
+gem 'nokogiri'
+gem 'tty-progressbar'
+gem 'selenium-webdriver'
+gem 'activesupport'
+gem 'parallel'
+gem 'awesome_print'

@@ -2,7 +2,6 @@ require 'rubygems'
 require 'selenium-webdriver'
 require "net/http"
 require "uri"
-require 'httparty'
 require 'active_support/all'
 
 require_relative 'chrome.rb'

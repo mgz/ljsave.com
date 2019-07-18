@@ -36,11 +36,11 @@ class Post
 
             begin
                 post.save_page_with_expanded_comments(browser)
+                browser.quit
             rescue => e
                 puts "#{e.inspect} for #{url}"
                 # throw e
             end
-            browser.quit
             posts << post
         end
         return posts

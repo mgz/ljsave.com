@@ -141,6 +141,7 @@ class Post
                 begin
                     # putsd '    Clicking...'
                     link.click
+                    sleep 0.2
                 rescue Selenium::WebDriver::Error::ElementClickInterceptedError
                     putsd '    Click intercepted'
                 rescue Selenium::WebDriver::Error::StaleElementReferenceError

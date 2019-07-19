@@ -23,10 +23,12 @@ class Post
                 putsd "Skipping #{post.url}"
                 
                 html = Nokogiri::HTML(open(post.downloaded_file_path))
-                post.init_title_and_time(html)
-                
-                posts << post
-                next
+                if post.init_title_and_time(html)
+                    posts << post
+                    next
+                else
+                    # Something wrong with it, let's re-download
+                end
             end
             
             # browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
@@ -235,6 +237,7 @@ class Post
         rescue => e
             puts "Error for #{self.url}:"
             puts e.inspect
+            return false
         end
     end
     

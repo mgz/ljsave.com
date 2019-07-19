@@ -138,14 +138,25 @@ class Post
             putsd 'Still have preloader, waiting'
             sleep 0.3
         end
+        
+        links_clicked_times = Hash.new(0)
+        
         while (links = get_expand_links(browser)).any?
             putsd "Got #{links.size} links to expand"
             
             links.each do |link|
                 begin
-                    # putsd '    Clicking...'
-                    link.click
-                    sleep 0.3
+                    href = link.attribute('href')
+                    if links_clicked_times[href] > 5
+                        putsd "    Clicked #{href} too many times, exiting..."
+                        # sleep 1000
+                        return browser.page_source
+                    end
+                    putsd "    Clicking #{href}..."
+                    # link.click
+                    browser.execute_script("arguments[0].click();", link)
+                    links_clicked_times[href] += 1
+                    sleep 1
                 rescue Selenium::WebDriver::Error::ElementClickInterceptedError
                     putsd '    Click intercepted'
                 rescue Selenium::WebDriver::Error::StaleElementReferenceError

@@ -85,6 +85,7 @@ class Post
 
             comments_html = html.at_css('#comments')
             (2..page_count).each do |page_num|
+                putsd "+++ Next page: #{page_num} / #{page_count}"
                 browser.navigate.to(@url + "?page=#{page_num}")
                 more_content = Nokogiri::HTML(expand_all_comments_on_page(browser)).at_css('#comments')
                 

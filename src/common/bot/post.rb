@@ -106,10 +106,12 @@ class Post
     def get_expand_links(browser)
         # putsd 'Finding expand links...'
         browser.manage.timeouts.implicit_wait = 0
-        expand_links = browser.find_elements(css: '#comments .b-leaf-footer .b-leaf-actions-expandchilds a')
+        expand_links = browser.find_elements(css:  '#comments .b-leaf-footer .b-leaf-actions-expandchilds a')
         expand_links += browser.find_elements(css: '#comments .b-leaf-collapsed .b-leaf-header .b-leaf-actions-expand a')
-        
-        
+        expand_links += browser.find_elements(css: '#comments .b-leaf-seemore-expand a')
+
+
+
         links_at_depths = {}
         
         expand_links.each do |link|

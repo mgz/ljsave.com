@@ -198,7 +198,7 @@ class Post
             # end
         end
         
-        putsd 'Everything expanded'
+        putsd '    * Everything expanded'
         return browser.page_source
     end
     

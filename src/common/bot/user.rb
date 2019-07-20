@@ -97,7 +97,7 @@ class User
             years_and_posts[post.time.year] << post
         end
         
-        builder = Nokogiri::HTML::Builder.new do |doc|
+        builder = Nokogiri::HTML::Builder.new(:encoding => 'UTF-8') do |doc|
             doc.div.years do
                 years_and_posts.keys.sort.each do |year|
                     doc.div.card(class: 'mb-5') do

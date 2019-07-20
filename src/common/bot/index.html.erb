@@ -8,15 +8,37 @@
         body {
             background-color: #f8f8f8;
         }
+
         a .badge {
             color: gray;
         }
-        a:visited { color: purple !important; }
+
+        a:visited {
+            color: purple !important;
+        }
     </style>
 </head>
 <body>
+<nav class="navbar navbar-expand navbar-dark bg-dark mb-3" id="main_navbar">
+
+    <a class="navbar-brand" href="/">
+        <span class="padded_left monospaced">LJSave.com</span>
+    </a>
+
+    <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+            <span class="navbar-text">
+                <%= page_title %>
+            </span>
+        </li>
+    </ul>
+
+
+</nav>
 <div class="container">
-    <h1><%= page_title %></h1>
+    <h1>
+        Копия ЖЖ <a href="https://<%= page_title %>" target="_blank"><%= page_title %></a>
+    </h1>
     <%= body %>
 </div>
 

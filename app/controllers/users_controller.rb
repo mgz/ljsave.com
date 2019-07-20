@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
     
     def index
+        @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"
         @users = Dir.glob('public/lj/*').select{|e| File.directory?(e) && e.start_with?('.') == false}.map{|e| File.basename(e)}.sort
     end
     

@@ -1,0 +1,7 @@
+h1 Сохраненные копии ЖЖ-дневников, с комментариями
+
+.card
+    ul.list-group.list-group-flush
+        - @users.each do |user|
+            li.list-group-item
+                a(href=User.get_root_url(user, request: request)) = user

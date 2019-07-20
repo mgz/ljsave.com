@@ -29,7 +29,7 @@ class User
     
     def get_post_urls(cached: false)
         if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
-            return File.open(cached_posts_dir + '/_post_urls.txt').readlines
+            return File.open(cached_posts_dir + '/_post_urls.txt').readlines.map{|l| l.strip}#.take(20)
         end
         
         post_urls = []

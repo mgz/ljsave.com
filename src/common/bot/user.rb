@@ -22,7 +22,11 @@ class User
         # "https://www.livejournal.com/view/?type=month&user=#{@username}&y=$year&m=$month"
     end
     
-    def get_post_urls
+    def get_post_urls(cached: false)
+        if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
+            return File.open(cached_posts_dir + '/_post_urls.txt').readlines
+        end
+        
         post_urls = []
         start_year, start_month, end_year, end_month = get_date_range
         
@@ -40,7 +44,9 @@ class User
             get_post_urls_from_archive_page(year, month)
         end
         
-        return results.compact.flatten
+        post_urls = results.compact.flatten
+        File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(post_urls.join("\n"))
+        return post_urls
     end
     
     def get_post_urls_from_archive_page(year, month)

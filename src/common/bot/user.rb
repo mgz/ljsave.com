@@ -1,6 +1,11 @@
 require 'nokogiri'
 require 'open-uri'
 require 'parallel'
+require 'active_support/all'
+
+
+require_relative 'functions.rb'
+require_relative 'post.rb'
 
 class User
     attr_reader :username

@@ -243,6 +243,8 @@ class Post
         
         doc.css("meta[property]")&.remove
         
+        # TODO: clean invisible iframes (<iframe frameborder="0" src="../index.html%3F%3Fplain%252FcrossStorageServ.html%3F&amp;v=1563267629.html" style="display: none; width: 0px; height: 0px; border: 0px;"></iframe><div class="ng-scope" lj-messages-init="true">)
+        
         # Expand spoilers
         doc.css('.lj-spoiler').add_class('lj-spoiler-opened')
         

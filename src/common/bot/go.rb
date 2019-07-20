@@ -24,7 +24,7 @@ if (post_url = ARGV[0]) && post_url.start_with?('https://')
 elsif (username = ARGV[0])
     user = User.new(username)
     putsd "User: #{user.username}"
-    post_urls = user.get_post_urls
+    post_urls = user.get_post_urls(cached: ENV['USE_CACHE'] == '1')
     putsd "Found #{post_urls.size} posts"
     
     # posts = Post.save_posts(post_urls[-5, 3])

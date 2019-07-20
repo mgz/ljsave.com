@@ -6,6 +6,11 @@ class UsersController < ApplicationController
     
     def show
         username = params[:username]
-        redirect_to "/lj_mirrors/#{username}/#{username}.html"
+        render html: File.read("public/lj/#{username}/#{username}.html").html_safe
+    end
+    
+    def post
+        username = params[:username]
+        render html: File.read("public/lj/#{username}/#{username}_files/#{username}/#{params[:post_id]}.html").html_safe
     end
 end

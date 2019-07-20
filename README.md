@@ -15,5 +15,5 @@ NO_WGET=0 CLEAR_CACHE=0 NO_HEADLESS=0 PROXY=localhost:8117 bundle exec ruby go.r
 
 ljbackup
 ljcopy
-ljmirror
+ljmirrors
 ljsave

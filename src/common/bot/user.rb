@@ -104,6 +104,17 @@ class User
         File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
         FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "#{User.out_dir}/#{@username}_files/")
     end
+    
+    def rebuild_index_file(cached: true)
+        posts = get_post_urls(cached: cached).map do |post_url|
+            post = Post.new(post_url)
+            post.load_from_cached_file
+            post
+        end
+        
+        create_index_file(posts)
+    end
+
     def cached_posts_dir
         parent = File.expand_path("..", Dir.pwd)
         parent = File.expand_path("..", parent)

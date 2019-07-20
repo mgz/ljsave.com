@@ -240,7 +240,7 @@ class Post
         
         contents = doc.to_html
         
-        FileUtils.mkdir_p("../../../cache/#{self.user.username}")
+        FileUtils.mkdir_p(user.cached_posts_dir)
         File.open(downloaded_file_path, 'w') do |file|
             file << contents
         end
@@ -268,9 +268,6 @@ class Post
     end
     
     def downloaded_file_path
-        parent = File.expand_path("..", Dir.pwd)
-        parent = File.expand_path("..", parent)
-        parent = File.expand_path("..", parent)
-        return "#{parent}/cache/#{self.user.username}/#{self.post_id}.html"
+        return "#{user.cached_posts_dir}/#{self.post_id}.html"
     end
 end

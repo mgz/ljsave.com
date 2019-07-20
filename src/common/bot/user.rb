@@ -58,9 +58,9 @@ class User
 
     def load_assets(posts)
         http_port = 5011
-        FileUtils.mkdir_p("../../../out/#{@username}_files")
+        FileUtils.mkdir_p("#{User.out_dir}/#{@username}_files")
         `pkill -f "p #{http_port}"`
-        http_server_thread = Process.spawn "cd ../../../cache && ruby -run -e httpd . -p #{http_port}  >/dev/null 2>/dev/null", pgroup: true
+        http_server_thread = Process.spawn "cd #{cached_posts_dir}/.. && ruby -run -e httpd . -p #{http_port}  >/dev/null 2>/dev/null", pgroup: true
         sleep 3
         
         
@@ -68,7 +68,7 @@ class User
             url = "http://localhost:#{http_port}/#{post.user.username}/#{File.basename(post.downloaded_file_path)}"
             putsd url
             # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url} >/dev/null 2>/dev/null `
-            `wget -nc -q -nv --timeout=2 -P ../../../out/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
+            `wget -nc -q -nv --timeout=2 -P #{User.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
             # FileUtils.rm(html_file)
         end
 
@@ -96,7 +96,20 @@ class User
         
         username = @username
         
-        File.write("../../../out/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
-        FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "../../../out/#{@username}_files/")
+        File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
+        FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "#{User.out_dir}/#{@username}_files/")
+    end
+    def cached_posts_dir
+        parent = File.expand_path("..", Dir.pwd)
+        parent = File.expand_path("..", parent)
+        parent = File.expand_path("..", parent)
+        return "#{parent}/cache/#{@username}"
+    end
+    
+    def self.out_dir
+        parent = File.expand_path("..", Dir.pwd)
+        parent = File.expand_path("..", parent)
+        parent = File.expand_path("..", parent)
+        return "#{parent}/out"
     end
 end

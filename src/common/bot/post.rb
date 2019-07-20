@@ -9,6 +9,17 @@ class Post
         @url = url
     end
     
+    def load_from_cached_file
+        if File.exists?(downloaded_file_path)
+            html = Nokogiri::HTML(open(downloaded_file_path))
+            if init_title_and_time(html)
+                return true
+            end
+        end
+        
+        return false
+    end
+    
     def self.save_posts(urls)
         posts = []
         browsers = []
@@ -22,8 +33,9 @@ class Post
             if File.exists?(post.downloaded_file_path)
                 putsd "Skipping #{post.url}"
                 
-                html = Nokogiri::HTML(open(post.downloaded_file_path))
-                if post.init_title_and_time(html)
+                post.load_from_cached_file
+
+                if post.title && post.time
                     posts << post
                     next
                 else

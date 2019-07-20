@@ -235,6 +235,14 @@ class Post
         doc.css('.b-leaf-actions')&.remove
         doc.css("div[suggestion-for-unlogged]")&.remove
         
+        doc.css("link[rel=home]")&.remove
+        doc.css("link[rel=contents]")&.remove
+        doc.css("link[rel=help]")&.remove
+        doc.css("link[rel=canonical]")&.remove
+        doc.css("link[rel=preload]")&.remove
+        
+        doc.css("meta[property]")&.remove
+        
         # Expand spoilers
         doc.css('.lj-spoiler').add_class('lj-spoiler-opened')
         

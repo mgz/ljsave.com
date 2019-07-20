@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
     
     def index
-        @users = Dir.glob('public/lj_mirrors/*').select{|e| File.directory?(e) && e.start_with?('.') == false}.map{|e| File.basename(e)}.sort
+        @users = Dir.glob('public/lj/*').select{|e| File.directory?(e) && e.start_with?('.') == false}.map{|e| File.basename(e)}.sort
     end
     
     def show

@@ -86,20 +86,52 @@ class User
     end
     
     def create_index_file(posts)
-        page_title = @username
-        body = '<ul>'
+        page_title = "#{@username}.livejournal.com"
+        user_name = @username
+        
+        
+        years_and_posts = Hash.new{|h, k| h[k] = []}
         posts.each do |post|
             next unless post.title.present?
-            body << '<li>'
-            body << "<a href='#{@username}_files/#{post.user.username}/#{post.post_id}.html'>#{post.title}</a> "
-            if post.time
-                body << "<span class='text-muted'>#{post.time.strftime('%Y, %d %b')} &middot; <small>#{post.time.strftime('%H:%M')}</small></span>"
-            end
-            body << '</li>'
+            next unless post.time.present?
+            years_and_posts[post.time.year] << post
         end
-        body << '</ul>'
+        
+        builder = Nokogiri::HTML::Builder.new do |doc|
+            doc.div.years do
+                years_and_posts.keys.sort.each do |year|
+                    doc.div.card(class: 'mb-5') do
+                        doc.h5(class: 'card-header') do
+                            doc.text year
+                        end
+                        doc.ul(class: 'list-group list-group-flush') do
+                            years_and_posts[year].each do |post|
+                                doc.li(class: 'list-group-item d-flex justify-content-between align-items-center') do
+                                    doc.a(href: "#{user_name}_files/#{post.user.username}/#{post.post_id}.html") do
+                                        doc.text post.title
+                                    end
+                                    if post.time
+                                        doc.a(href: post.url, target: '_blank') do
+                                            doc.span(class: 'badge badge-white') do
+                                                doc.text post.time.strftime('%d %b %Y')
+                                                doc.text ' '
+                                                doc.small do
+                                                    doc.text post.time.strftime('%H:%M')
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
         
         username = @username
+        
+        body = builder.to_html
         
         File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
         FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "#{User.out_dir}/#{@username}_files/")

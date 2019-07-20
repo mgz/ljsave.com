@@ -87,8 +87,6 @@ class User
     
     def create_index_file(posts)
         page_title = "#{@username}.livejournal.com"
-        user_name = @username
-        
         
         years_and_posts = Hash.new{|h, k| h[k] = []}
         posts.each do |post|
@@ -107,7 +105,7 @@ class User
                         doc.ul(class: 'list-group list-group-flush') do
                             years_and_posts[year].each do |post|
                                 doc.li(class: 'list-group-item d-flex justify-content-between align-items-center') do
-                                    doc.a(href: "#{user_name}_files/#{post.user.username}/#{post.post_id}.html") do
+                                    doc.a(href: "/lj/#{post.user.username}/#{post.user.username}_files/#{post.user.username}/#{post.post_id}.html") do
                                         doc.text post.title
                                     end
                                     if post.time

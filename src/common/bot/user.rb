@@ -132,7 +132,6 @@ class User
         body = builder.to_html
         
         File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
-        FileUtils.cp(File.expand_path(File.dirname(__FILE__) + '/bootstrap.min.css'), "#{User.out_dir}/#{@username}_files/")
     end
     
     def rebuild_index_file(cached: true)

@@ -50,6 +50,7 @@ class User
         end
         
         post_urls = results.compact.flatten
+        FileUtils.mkdir_p(cached_posts_dir)
         File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(post_urls.join("\n"))
         return post_urls
     end

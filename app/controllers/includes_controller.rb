@@ -1,6 +1,6 @@
 class IncludesController < ApplicationController
   
   def body
-    render plain: params.inspect
+    render plain: ERB::Util.h(params.inspect)
   end
 end

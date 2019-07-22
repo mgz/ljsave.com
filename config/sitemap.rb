@@ -9,4 +9,4 @@ SitemapGenerator::Sitemap.create do
     add file.delete_prefix('public')
   end
 end
-# SitemapGenerator::Sitemap.ping_search_engines # Not needed if you use the rake tasks
+SitemapGenerator::Sitemap.ping_search_engines # Not needed if you use the rake tasks

@@ -64,6 +64,7 @@ class User
   
   def load_assets(posts)
     http_port = User.get_free_port
+    putsd "Starting http server on port #{http_port}..."
     FileUtils.mkdir_p("#{User.out_dir}/#{@username}_files")
     `pkill -f "p #{http_port}"`
     http_server_thread = Process.spawn "cd #{cached_posts_dir}/.. && ruby -run -e httpd . -p #{http_port}  >/dev/null 2>/dev/null", pgroup: true

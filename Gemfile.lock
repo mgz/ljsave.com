@@ -182,6 +182,8 @@ GEM
     selenium-webdriver (3.142.3)
       childprocess (>= 0.5, < 2.0)
       rubyzip (~> 1.2, >= 1.2.2)
+    sitemap_generator (6.0.2)
+      builder (~> 3.0)
     slim (4.0.1)
       temple (>= 0.7.6, < 0.9)
       tilt (>= 2.0.6, < 2.1)
@@ -238,6 +240,7 @@ DEPENDENCIES
   recap
   sass-rails (~> 5.0)
   selenium-webdriver
+  sitemap_generator
   slim-rails
   sqlite3
   turbolinks (~> 5)

@@ -6,4 +6,8 @@ class IncludesController < ApplicationController
     
     render layout: nil
   end
+  
+  def head
+    render layout: nil
+  end
 end

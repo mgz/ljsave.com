@@ -240,6 +240,7 @@ class Post
         doc.css("link[rel=help]")&.remove
         doc.css("link[rel=canonical]")&.remove
         doc.css("link[rel=preload]")&.remove
+        doc.css("link[rel=next]")&.remove
         
         doc.css("meta[property]")&.remove
         

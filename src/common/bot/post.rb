@@ -235,6 +235,7 @@ class Post
         doc.css('.b-singlepost-addfriend-link')&.remove
         doc.css('.b-leaf-actions')&.remove
         doc.css("div[suggestion-for-unlogged]")&.remove
+        doc.css("div.appwidget")&.remove
         
         doc.css("link[rel=home]")&.remove
         doc.css("link[rel=contents]")&.remove

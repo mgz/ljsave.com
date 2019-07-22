@@ -229,6 +229,7 @@ class Post
         
         doc = Nokogiri.HTML(contents)                            # Parse the document
         doc.css('script').remove                             # Remove <script>…</script>
+        doc.css('noscript').remove
         doc.xpath("//@*[starts-with(name(),'on')]").remove   # Remove on____ attributes
         doc.css('header').remove
         doc.css('.b-singlepost-addfriend-link')&.remove

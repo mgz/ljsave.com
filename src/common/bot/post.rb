@@ -250,6 +250,10 @@ class Post
         
         contents = doc.to_html
         
+        # Inject my content
+        contents.sub!('</head>', '</head><!--#include virtual="/include/head?host=$host&uri=$request_uri" -->')
+        contents.sub!(%r{(<body.+?>)}, '\1<!--#include virtual="/include/body?host=$host&uri=$request_uri" -->')
+        
         FileUtils.mkdir_p(user.cached_posts_dir)
         File.open(downloaded_file_path, 'w') do |file|
             file << contents

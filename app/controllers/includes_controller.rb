@@ -8,6 +8,7 @@ class IncludesController < ApplicationController
   end
   
   def head
+    @username = params[:uri] ? params[:uri][%r{/lj/(.+?)/}, 1] : 'dummy'
     render layout: nil
   end
 end

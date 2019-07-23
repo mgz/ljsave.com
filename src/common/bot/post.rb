@@ -141,6 +141,7 @@ class Post
     doc.css('.b-leaf-actions')&.remove
     doc.css("div[suggestion-for-unlogged]")&.remove
     doc.css("div.appwidget")&.remove
+    doc.css("div.b-loginform")&.remove
     
     doc.css("link[rel=home]")&.remove
     doc.css("link[rel=contents]")&.remove

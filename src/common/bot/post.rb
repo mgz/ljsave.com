@@ -64,7 +64,7 @@ class Post
   
   def save_page_with_expanded_comments(browser)
     putsd "Downloading #{@url}"
-    browser.navigate.to(@url)
+    browser.navigate.to(@url + '#comments')
     # ap browser.manage.all_cookies
     # unless browser.manage.all_cookies.any?{|c| c[:name] == 'prop_opt_readability'}
     #     browser.manage.add_cookie(name: "prop_opt_readability", value: "1", expires: 10.days.from_now)

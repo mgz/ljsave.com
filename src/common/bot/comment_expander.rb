@@ -39,6 +39,8 @@ class CommentExpander
     
     links_clicked_times = Hash.new(0)
     
+    puts "Post has #{browser.find_elements(class: 'b-tree-twig').size} comments"
+    
     while (links = get_expand_links(browser)).any?
       putsd "Got #{links.size} links to expand"
       

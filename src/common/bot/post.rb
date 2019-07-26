@@ -33,7 +33,7 @@ class Post
       bar.advance(1)
       
       if File.exists?(post.downloaded_file_path)
-        putsd "Skipping #{post.url}"
+        # putsd "Skipping #{post.url}"
         
         post.load_from_cached_file
         

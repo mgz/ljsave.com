@@ -32,12 +32,12 @@ class CommentExpander
   end
   
   def self.expand_all_comments_on_page(browser)
-    slept_seconts = 0.0
+    slept_seconds = 0.0
     while browser.find_elements(css: '#comments.b-grove-loading').any? || browser.find_elements(css: 'div.b-grove.b-grove-hover').any?
       putsd 'Still have preloader, waiting'
-      slept_seconts += 0.3
+      slept_seconds += 0.3
       sleep 0.3
-      raise 'Still have preloader' if slept_seconts > 10
+      break if slept_seconds > 10
     end
     
     links_clicked_times = Hash.new(0)

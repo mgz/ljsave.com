@@ -74,6 +74,8 @@ class Post
     if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
       putsd 'Setting READABILITY mode'
       browser.execute_script("arguments[0].click();", checkbox)
+      sleep 2
+      browser.navigate.to(@url + '#comments')
     end
     
     contents = CommentExpander.expand_all_comments_on_page(browser)

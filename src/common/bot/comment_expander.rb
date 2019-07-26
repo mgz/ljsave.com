@@ -32,7 +32,7 @@ class CommentExpander
   end
   
   def self.expand_all_comments_on_page(browser)
-    while browser.find_elements(css: '#comments.b-grove-loading').any?
+    while browser.find_elements(css: '#comments.b-grove-loading').any? || browser.find_elements(css: 'div.b-grove.b-grove-hover').any?
       putsd 'Still have preloader, waiting'
       sleep 0.3
     end

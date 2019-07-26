@@ -77,7 +77,10 @@ class Post
       sleep 2
       browser.navigate.to(@url + '#comments')
     end
-    
+
+    browser.execute_script("document.getElementById('comments').scrollIntoView(true)")
+
+
     contents = CommentExpander.expand_all_comments_on_page(browser)
     
     page_count = browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1

@@ -84,7 +84,7 @@ class User
     # `xargs -n 1 -P 4 -i wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links {} >/dev/null 2>/dev/null < cache/url_list.txt`
     
     
-    Process.kill(9, -Process.getpgid(http_server_thread))
+    # Process.kill(9, -Process.getpgid(http_server_thread))
   end
   
   def create_index_file(posts)
@@ -161,15 +161,16 @@ class User
   end
   
   def self.get_free_port
-    require 'socket'
-    port = 5012
-    while port < 7000
-      if User.port_open?(port)
-        port += 1
-      else
-        return port
-      end
-    end
+    return 5012
+    # require 'socket'
+    # port = 5012
+    # while port < 7000
+    #   if User.port_open?(port)
+    #     port += 1
+    #   else
+    #     return port
+    #   end
+    # end
   end
   
   def self.port_open?(port)

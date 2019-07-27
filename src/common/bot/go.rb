@@ -21,6 +21,9 @@ if (post_url = ARGV[0]) && post_url.start_with?('https://')
   # post = Post.new('https://palaman.livejournal.com/410686.html')
   post = Post.new(post_url)
   post.save_page_with_expanded_comments(BROWSER)
+elsif ('browser' == ARGV[0])
+  BROWSER = create_chrome(headless: true, typ: 'desktop')
+  sleep 10_000_000
 elsif (username = ARGV[0])
   user = User.new(username)
   putsd "User: #{user.username}"

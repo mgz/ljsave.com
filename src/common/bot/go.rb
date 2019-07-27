@@ -29,9 +29,11 @@ elsif (username = ARGV[0])
   putsd "User: #{user.username}"
   post_urls = user.get_post_urls(cached: ENV['USE_CACHE'] == '1')
   putsd "Found #{post_urls.size} posts"
-  
-  # posts = Post.save_posts(post_urls[-5, 3])
-  posts = Post.save_posts(post_urls)
+
+  unless ENV['NO_SAVE_POSTS'] == '1'
+    # posts = Post.save_posts(post_urls[-5, 3])
+    posts = Post.save_posts(post_urls)
+  end
   
   unless ENV['NO_WGET'] == '1'
     user.load_assets(posts)

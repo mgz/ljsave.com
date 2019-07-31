@@ -199,4 +199,13 @@ class Post
   def downloaded_file_path
     return "#{user.cached_posts_dir}/#{self.post_id}.html"
   end
+  
+  def to_json
+    return {
+      url: @url,
+      title: @title,
+      time: @time,
+      id: post_id
+    }
+  end
 end

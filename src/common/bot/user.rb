@@ -130,10 +130,13 @@ class User
     end
     
     username = @username
-    
     body = builder.to_html
-    
     File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
+
+    File.write("#{User.out_dir}/#{@username}.json", {
+      posts: posts.map(&:to_json),
+      years: years_and_posts
+    }.to_json)
   end
   
   def rebuild_index_file(cached: true)

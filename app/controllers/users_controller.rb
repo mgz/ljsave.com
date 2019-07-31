@@ -6,8 +6,11 @@ class UsersController < ApplicationController
     end
     
     def show
-        username = params[:username]
-        render html: File.read("public/lj/#{username}/#{username}.html").html_safe
+        @username = params[:username]
+        html = File.read("public/lj/#{@username}/#{@username}.html")
+        # liker = render_to_string partial: 'users/show/like', locals: {username: @username}
+        # html.sub! '<div id="content">', %{#{liker}<div id="content">}
+        render html: html.html_safe
     end
     
     def post

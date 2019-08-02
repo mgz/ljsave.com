@@ -1,4 +1,4 @@
-= render :partial => "users/show/like"
+= render :partial => "users/show/like", locals: {username: @username}
 
 #user_entries
   - @years.each_pair do |year, posts|

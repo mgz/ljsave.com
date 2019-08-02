@@ -11,9 +11,9 @@ class UsersController < ApplicationController
         json = JSON.parse(File.read("public/lj/#{@username}/#{@username}.json"))
         @years = json['years']
         
-        @navbar_text = "Копия #{@username}.livejournal.com"
+        @navbar_text = "Копия ЖЖ #{@username}.livejournal.com"
         
-        
+        @page_title = "Копия ЖЖ #{@username} с развернутыми комментариями"
         
         # html = File.read("public/lj/#{@username}/#{@username}.html")
         # liker = render_to_string partial: 'users/show/like', locals: {username: @username}

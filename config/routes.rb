@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   
   namespace :user do
     get '/:username' => '/users#show'
+    get '/:username/:post_id/nav' => '/users#post_nav', :post_id => /\d+/
     get '/:username/:post_id' => '/users#post', :post_id => /\d+/
   end
   

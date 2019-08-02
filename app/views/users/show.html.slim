@@ -13,13 +13,11 @@
             = link_to post.title, "/lj/#{post.user['username']}/#{post.user['username']}_files/#{post.user['username']}/#{post.post_id}.html"
             span.badge.badge-white
               - if post.comment_count > 0
-                span.comments
+                span.comments(title='Кол-во комментариев')
                   i.far.fa-comment
                   = post.comment_count
               - if post.time
-                = link_to post.url, target: '_blank' do
-
-
+                = link_to post.url, target: '_blank', title: 'Посмотреть оригинал на Livejournal.com' do
                   = post.time.strftime('%d.%m.%Y')
                   small
                     =< post.time.strftime('%H:%M')

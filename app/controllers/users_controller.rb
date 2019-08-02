@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
     caches_action :show, expires_in: 5.minutes
+    caches_action :post, expires_in: 1.hours
     
     def index
         @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"

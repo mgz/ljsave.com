@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+    caches_action :show, expires_in: 5.minutes
     
     def index
         @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"
@@ -7,10 +8,17 @@ class UsersController < ApplicationController
     
     def show
         @username = params[:username]
-        html = File.read("public/lj/#{@username}/#{@username}.html")
+        json = JSON.parse(File.read("public/lj/#{@username}/#{@username}.json"))
+        @years = json['years']
+        
+        @navbar_text = "Копия #{@username}.livejournal.com"
+        
+        
+        
+        # html = File.read("public/lj/#{@username}/#{@username}.html")
         # liker = render_to_string partial: 'users/show/like', locals: {username: @username}
         # html.sub! '<div id="content">', %{#{liker}<div id="content">}
-        render html: html.html_safe
+        # render html: html.html_safe
     end
     
     def post

@@ -1,3 +1,25 @@
 // Place all the styles related to the users controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+#user_entries {
+  .years a:visited {
+    color: purple !important;
+  }
+
+  .comments {
+    display: inline-block;
+    width: 80px;
+    margin-right: 10px;
+    text-align: left;
+
+    i {
+      margin-right: 5px;
+    }
+  }
+
+  .badge a {
+    color: gray !important;
+  }
+
+}

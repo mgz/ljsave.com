@@ -1,0 +1,24 @@
+= render :partial => "users/show/like"
+
+#user_entries
+  - @years.each_pair do |year, posts|
+    .card.mb-5
+      h5.card-header
+        = year
+      ul.list-group.list-group-flush
+        - posts.each do |post|
+          - post = OpenStruct.new(post)
+          - post.time = Time.parse(post.time)
+          li.list-group-item.d-flex.justify-content-between.align-items-center
+            = link_to post.title, "/lj/#{post.user['username']}/#{post.user['username']}_files/#{post.user['username']}/#{post.post_id}.html"
+            span.badge.badge-white
+              span.comments
+                i.far.fa-comment
+                = post.comment_count
+              - if post.time
+                = link_to post.url, target: '_blank' do
+
+
+                  = post.time.strftime('%d.%m.%Y')
+                  small
+                    =< post.time.strftime('%H:%M')

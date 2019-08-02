@@ -5,7 +5,7 @@ require 'tty-progressbar'
 require_relative 'comment_expander.rb'
 
 class Post
-  attr_reader :url, :title, :time
+  attr_reader :url, :title, :time, :comment_count
   
   def initialize(url)
     @url = url
@@ -176,11 +176,11 @@ class Post
   end
   
   def user
-    return User.new(@url[%r{://(.+?)\.}, 1])
+    return @user ||= User.new(@url[%r{://(.+?)\.}, 1])
   end
   
   def post_id
-    return @url[%r{(\d+)\.html}, 1]
+    return @post_id ||= @url[%r{(\d+)\.html}, 1]
   end
   
   def init_title_and_time(html_doc)
@@ -189,6 +189,8 @@ class Post
       
       time_str = html_doc.at_css('time.published').text.strip
       @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+      
+      @comment_count = html_doc.css('.b-tree-twig').length
     rescue => e
       puts "Error for #{self.url}:"
       puts e.inspect
@@ -205,7 +207,8 @@ class Post
       url: @url,
       title: @title,
       time: @time,
-      id: post_id
+      id: post_id,
+      comment_count: @comment_count
     }
   end
 end

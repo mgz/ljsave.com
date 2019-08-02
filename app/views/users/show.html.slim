@@ -5,7 +5,7 @@
     .card.mb-5
       h5.card-header
         = year
-      ul.list-group.list-group-flush
+      ul.list-group.list-group-flush.years
         - posts.each do |post|
           - post = OpenStruct.new(post)
           - post.time = Time.parse(post.time)

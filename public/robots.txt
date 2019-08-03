@@ -1,1 +1,2 @@
 Sitemap: https://ljsave.com/sitemap.xml.gz
+Disallow: /lj/

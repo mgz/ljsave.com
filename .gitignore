@@ -27,7 +27,6 @@
 # Ignore master key for decrypting credentials and more.
 #/config/master.key
 /.idea
-public/lj_mirrors/
-/public/lj
-/public/lj.zip
 /public/sitemap.xml.gz
+
+/public/lj/

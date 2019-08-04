@@ -11,9 +11,12 @@ jQuery.noConflict();
 
 ```bash
 NO_WGET=0 CLEAR_CACHE=0 NO_HEADLESS=0 PROXY=localhost:8117 bundle exec ruby go.rb palaman
+NO_WGET=1 USE_CACHE=1 bundle exec ruby -r './user.rb' -e 'Dir.glob("../../../out/*.html").map{|f| File.basename(f, ".html")}.each{|username| User.new(username).rebuild_index_file}'
 ```
 
 ljbackup
 ljcopy
 ljmirrors
 ljsave
+
+

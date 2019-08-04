@@ -26,21 +26,9 @@ class UsersController < ApplicationController
         username = params[:username]
         post_id = params[:post_id].to_i
         
-        html = File.read("public/lj/#{username}/#{username}_files/#{username}/#{post_id}.html").html_safe
+        post = Post.new(id: post_id, username: username)
         
-        head_content_append = render_to_string layout: nil, template: 'includes/head', locals: {username: username, post_id: post_id}
-
-        body_content_append = render_to_string layout: nil, template: 'includes/body', locals: {username: username, post_id: post_id}
-        
-        html.sub!('</head>', "#{head_content_append}</head>")
-        html.sub!(%r{(<body.+?>)}, "\\1#{body_content_append}")
-        
-        base_path = "/lj/#{username}/#{username}_files"
-        
-        html.gsub!('href="../', "href=\"#{base_path}/")
-        html.gsub!('src="../', "src=\"#{base_path}/")
-        
-        render html: html.html_safe, layout: nil
+        render html: post.parsed_html(self), layout: nil
     end
     
     def post_nav

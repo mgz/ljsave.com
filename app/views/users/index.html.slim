@@ -4,7 +4,7 @@ div.text-center.mb-4.mt-3
   <div class="social-likes social-likes_horizontal" data-url="https://ljsave.com">
     <div class="facebook" title="Поделиться ссылкой на Фейсбуке">Поделиться</div>
     <div class="vkontakte" title="Поделиться ссылкой Вконтакте">Поделиться</div>
-    / <div class="github" title="Исходный код на GitHub">Разработка</div>
+    <div class="github" title="Исходный код на GitHub">Участвовать в разработке</div>
   </div>
 
 .card
@@ -23,7 +23,7 @@ javascript:
     github: {
       counterUrl: 'https://api.github.com/repos/mgz/ljsave.com?callback=?',
         convertNumber: function(data) {
-        return data.data.watchers_count;
+        return data.data.stargazers_count;
           },
           clickUrl: 'https://github.com/mgz/ljsave.com/'
             }

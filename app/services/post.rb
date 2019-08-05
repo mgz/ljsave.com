@@ -1,5 +1,4 @@
 class Post
-  
   def initialize(id:, username:)
     @id = id
     @user = User.new(username)
@@ -13,6 +12,7 @@ class Post
     inject_body_content!
     fix_relative_asset_urls!
     replace_links_to_same_blog!
+    replace_links_to_other_downloaded_blogs!
     
     return @html.html_safe
   end
@@ -36,14 +36,33 @@ class Post
   
   def replace_links_to_same_blog!
     @html.gsub!(%r{"http.?://#{@user.name}.livejournal.com/((\d+).html)?}) do |str|
-      puts str
-      puts '$1', $1
-      puts '$2', $2
       if $2.present?
         "\"#{@user.get_url}/#{$2}"
       else
         str
       end
     end
+  end
+
+  def replace_links_to_other_downloaded_blogs!(html: nil, downloaded_user: nil)
+    puts '11'
+    (html || @html).gsub!(%r{"http.?://(.+?).livejournal.com/((\d+).html)?}) do |str|
+      puts "str: #{str}"
+      username = $1
+      post_id = $3
+      
+      puts "username: #{username}, post_id: #{post_id}"
+      
+      if username != 'www' && (user = downloaded_user || User.downloaded_users.find{|u| u.name == username})
+        if post_id.present?
+          "\"#{user.get_url}/#{post_id}"
+        else
+          "\"#{user.get_url}/#{post_id}"
+        end
+      else
+        str
+      end
+    end
+    return html || @html
   end
 end

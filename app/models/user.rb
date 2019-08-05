@@ -13,4 +13,13 @@ class User
   def get_url
     return "/user/#{@name}"
   end
+  
+  def self.downloaded_users
+    dirs = Dir.each_child('public/lj')
+    return @@downloaded_users ||= dirs.map do |sub|
+      if sub.start_with?('.') == false && File.directory?('public/lj/' + sub)
+        User.new(sub)
+      end
+    end.compact
+  end
 end

@@ -2,6 +2,6 @@ target
 .idea
 *.iml
 *.log
-/src/tmp/chrome_datadirs
-/out
-/cache
+/scraper/src/tmp/chrome_datadirs
+/scraper/out
+/scraper/cache

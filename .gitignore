@@ -31,3 +31,9 @@
 
 /public/lj/
 /Capfile
+
+target
+*.log
+/scraper/src/tmp/chrome_datadirs
+/scraper/out
+/scraper/cache

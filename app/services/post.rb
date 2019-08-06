@@ -7,7 +7,7 @@ class Post
   def parsed_html(controller)
     @controller = controller
     @html = File.read("public/lj/#{@user.name}/#{@user.name}_files/#{@user.name}/#{@id}.html")
-  
+    
     inject_head_content!
     inject_body_content!
     fix_relative_asset_urls!
@@ -18,11 +18,12 @@ class Post
   end
   
   private
+  
   def inject_head_content!
     head_content_append = @controller.render_to_string layout: nil, template: 'includes/head', locals: {username: @user.name, post_id: @id}
     @html.sub!('</head>', "#{head_content_append}</head>")
   end
-
+  
   def inject_body_content!
     body_content_append = @controller.render_to_string layout: nil, template: 'includes/body', locals: {username: @user.name, post_id: @id}
     @html.sub!(%r{(<body.+?>)}, "\\1#{body_content_append}")
@@ -43,7 +44,7 @@ class Post
       end
     end
   end
-
+  
   def replace_links_to_other_downloaded_blogs!(html: nil, downloaded_user: nil)
     puts '11'
     (html || @html).gsub!(%r{"http.?://(.+?).livejournal.com/((\d+).html)?}) do |str|
@@ -53,7 +54,7 @@ class Post
       
       puts "username: #{username}, post_id: #{post_id}"
       
-      if username != 'www' && (user = downloaded_user || User.downloaded_users.find{|u| u.name == username})
+      if username != 'www' && (user = downloaded_user || User.downloaded_users.find { |u| u.name == username })
         if post_id.present?
           "\"#{user.get_url}/#{post_id}"
         else

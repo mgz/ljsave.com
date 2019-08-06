@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   get '/include/head' => 'includes#head'
   get '/include/body' => 'includes#body'
   
+  get '/search' => 'users#search'
+  
 
 
 end

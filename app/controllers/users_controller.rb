@@ -37,4 +37,9 @@ class UsersController < ApplicationController
     
     render layout: nil
   end
+  
+  def search
+    @q = params[:text]
+    @page_title = @q
+  end
 end

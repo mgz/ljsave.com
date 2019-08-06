@@ -1,0 +1,9 @@
+nav.navbar.navbar-expand.navbar-dark.bg-dark.mb-3#main_navbar
+  a.navbar-brand(href="/")
+    span.padded_left.monospaced LJSave.com
+
+  ul.navbar-nav.mx-auto
+    li.nav-item
+      span.navbar-text
+        = @navbar_text
+  = render :partial => "layouts/search_form_yandex"

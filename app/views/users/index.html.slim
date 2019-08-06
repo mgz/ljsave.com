@@ -14,7 +14,7 @@ div.text-center.mb-4.mt-3
         a(href=User.get_root_url(user.name, request: request))
           = user.name
           div.float-right.post_count
-            => user.post_count
+            => number_with_delimiter(user.post_count, delimiter: '&thinsp;'.html_safe)
             | шт.
 
 .text-center.mt-5

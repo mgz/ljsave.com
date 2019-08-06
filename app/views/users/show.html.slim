@@ -4,7 +4,8 @@
   - @years.each_pair do |year, posts|
     .card.mb-5
       h5.card-header
-        = year
+        => year
+        | г.
         span.float-right.post_count
           => posts.size
           | шт.

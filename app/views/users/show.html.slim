@@ -1,10 +1,13 @@
-= render :partial => "users/show/like", locals: {username: @username}
+= render :partial => "users/show/like", locals: {username: @user.name}
 
 #user_entries
   - @years.each_pair do |year, posts|
     .card.mb-5
       h5.card-header
         = year
+        span.float-right.post_count
+          => posts.size
+          | шт.
       ul.list-group.list-group-flush.years
         - posts.each do |post|
           - post = OpenStruct.new(post)

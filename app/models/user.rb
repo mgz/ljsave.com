@@ -22,4 +22,12 @@ class User
       end
     end.compact
   end
+  
+  def post_count
+    return posts_hash['posts'].size
+  end
+  
+  def posts_hash
+    return JSON.parse(File.read("public/lj/#{@name}/#{@name}.json"))
+  end
 end

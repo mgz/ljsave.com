@@ -5,21 +5,17 @@ class UsersController < ApplicationController
   def index
     @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"
     @users = Dir.glob('public/lj/*').select { |e| File.directory?(e) && e.start_with?('.') == false }.map { |e| File.basename(e) }.sort
+    @users.map!{|u| User.new(u)}
   end
   
   def show
-    @username = params[:username]
-    json = JSON.parse(File.read("public/lj/#{@username}/#{@username}.json"))
+    @user = User.new(params[:username])
+    json = @user.posts_hash
     @years = json['years']
     
-    @navbar_text = "Копия ЖЖ #{@username}.livejournal.com"
+    @navbar_text = "Копия ЖЖ #{@user.name}.livejournal.com"
     
-    @page_title = "Копия ЖЖ #{@username} с развернутыми комментариями"
-    
-    # html = File.read("public/lj/#{@username}/#{@username}.html")
-    # liker = render_to_string partial: 'users/show/like', locals: {username: @username}
-    # html.sub! '<div id="content">', %{#{liker}<div id="content">}
-    # render html: html.html_safe
+    @page_title = "Копия ЖЖ #{@user.name} с развернутыми комментариями"
   end
   
   def post

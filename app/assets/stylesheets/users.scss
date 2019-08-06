@@ -2,7 +2,18 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+#user_list {
+  .post_count {
+    color: lightgray;
+  }
+}
+
 #user_entries {
+  .card-header {
+    .post_count {
+      color: lightgray;
+    }
+  }
   .years a:visited {
     color: #800080 !important;
   }

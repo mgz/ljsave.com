@@ -25,12 +25,12 @@ class Post
   def self.save_posts(urls)
     posts = []
     browsers = []
-    # Parallel.each(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
-    bar = TTY::ProgressBar.new("Downloading #{urls.size} | ETA: :eta [:bar] :elapsed", total: urls.size)
-    urls.each do |url|
+    Parallel.each(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
+    # bar = TTY::ProgressBar.new("Downloading #{urls.size} | ETA: :eta [:bar] :elapsed", total: urls.size)
+    # urls.each do |url|
       post = Post.new(url)
       
-      bar.advance(1)
+      # bar.advance(1)
       
       if File.exists?(post.downloaded_file_path)
         # putsd "Skipping #{post.url}"

@@ -23,30 +23,20 @@ class Post
   end
   
   def self.save_posts(urls)
-    posts = []
-    browsers = []
-    Parallel.each(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
-    # bar = TTY::ProgressBar.new("Downloading #{urls.size} | ETA: :eta [:bar] :elapsed", total: urls.size)
-    # urls.each do |url|
+    results = Parallel.map(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
       post = Post.new(url)
-      
-      # bar.advance(1)
-      
       if File.exists?(post.downloaded_file_path)
         # putsd "Skipping #{post.url}"
         
         post.load_from_cached_file
         
         if post.title && post.time
-          posts << post
-          next
+          # posts << post
+          next post
         else
           # Something wrong with it, let's re-download
         end
       end
-      
-      # browser = browsers[Parallel.worker_number] || create_chrome(headless: true, typ: 'desktop')
-      # browsers[Parallel.worker_number] ||= browser
       
       browser = create_chrome(headless: true, typ: 'desktop')
       
@@ -57,9 +47,10 @@ class Post
         puts "#{e.inspect} for #{url}"
         # throw e
       end
-      posts << post
+      # posts << post
+      post
     end
-    return posts
+    return results.compact
   end
   
   def save_page_with_expanded_comments(browser)

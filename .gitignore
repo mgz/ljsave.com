@@ -35,5 +35,7 @@
 target
 *.log
 /scraper/src/tmp/chrome_datadirs
+/scraped/
 /scraper/out
 /scraper/cache
+/.env

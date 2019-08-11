@@ -20,7 +20,7 @@ if (post_url = ARGV[0]) && post_url.start_with?('https://')
   putsd "Fetching post #{post_url}"
   # post = Post.new('https://palaman.livejournal.com/410686.html')
   post = Post.new(post_url)
-  post.save_page_with_expanded_comments(BROWSER)
+  post.expand_comments_and_save_page(BROWSER)
 elsif ('browser' == ARGV[0])
   BROWSER = create_chrome(headless: true, typ: 'desktop')
   sleep 10_000_000
@@ -32,7 +32,7 @@ elsif (username = ARGV[0])
 
   unless ENV['NO_SAVE_POSTS'] == '1'
     # posts = Post.save_posts(post_urls[-5, 3])
-    posts = Post.save_posts(post_urls)
+    posts = PostDownloader.save_posts(post_urls)
   end
   
   unless ENV['NO_WGET'] == '1'

@@ -4,11 +4,17 @@ require 'tty-progressbar'
 
 require_relative 'comment_expander.rb'
 
-class Post
+class PostDownloader
   attr_reader :url, :title, :time, :comment_count
   
   def initialize(url)
     @url = url
+    @id = url[%r{.livejournal.com/(\d+).html}, 1].to_i
+    @blog = Blog.new(url[%r{://(.+?).livejournal.com}, 1])
+  end
+  
+  def self.by_blog_and_id(blog, id)
+    return PostDownloader.new("https://#{blog.username}.livejournal.com/#{id}.html")
   end
   
   def load_from_cached_file
@@ -24,7 +30,7 @@ class Post
   
   def self.save_posts(urls)
     results = Parallel.map(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
-      post = Post.new(url)
+      post = PostDownloader.new(url)
       if File.exists?(post.downloaded_file_path)
         # putsd "Skipping #{post.url}"
         
@@ -41,7 +47,7 @@ class Post
       browser = create_chrome(headless: true, typ: 'desktop')
       
       begin
-        post.save_page_with_expanded_comments(browser)
+        post.expand_comments_and_save_page(browser)
         browser.quit
       rescue => e
         puts "#{e.inspect} for #{url}"
@@ -53,14 +59,9 @@ class Post
     return results.compact
   end
   
-  def save_page_with_expanded_comments(browser)
+  def expand_comments_and_save_page(browser)
     putsd "Downloading #{@url}"
     browser.navigate.to(@url + '#comments')
-    # ap browser.manage.all_cookies
-    # unless browser.manage.all_cookies.any?{|c| c[:name] == 'prop_opt_readability'}
-    #     browser.manage.add_cookie(name: "prop_opt_readability", value: "1", expires: 10.days.from_now)
-    #     browser.navigate.to(@url)
-    # end
     
     if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
       putsd 'Setting READABILITY mode'
@@ -68,10 +69,10 @@ class Post
       sleep 2
       browser.navigate.to(@url + '#comments')
     end
-
+    
     browser.execute_script("document.getElementById('comments').scrollIntoView(true)")
-
-
+    
+    
     contents = CommentExpander.expand_all_comments_on_page(browser)
     
     page_count = browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
@@ -91,7 +92,7 @@ class Post
     html.css('.lj-recommended')&.remove
     
     
-    if true && page_count > 1
+    if page_count > 1
       
       comments_html = html.at_css('#comments')
       (2..page_count).each do |page_num|
@@ -114,20 +115,59 @@ class Post
     save_page(contents)
   end
   
+  def user
+    return @user ||= Blog.new(@url[%r{://(.+?)\.}, 1])
+  end
   
+  def post_id
+    return @post_id ||= @url[%r{(\d+)\.html}, 1]
+  end
   
+  def init_title_and_time(html_doc)
+    begin
+      @title = html_doc.at_css('h1')&.text&.strip
+      
+      time_str = html_doc.at_css('time.published').text.strip
+      @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+      
+      @comment_count = html_doc.css('.b-tree-twig').length
+    rescue => e
+      puts "Error for #{self.url}:"
+      puts e.inspect
+      return false
+    end
+  end
+  
+  def downloaded_file_path
+    return "#{@blog.cached_posts_dir}/#{self.post_id}.html"
+  end
+  
+  def to_json
+    return {
+      url: @url,
+      title: @title,
+      time: @time,
+      id: post_id,
+      comment_count: @comment_count
+    }
+  end
+  
+  def mirror
+    port = @blog.start_httpd
+    @blog.create_mirror_dir
+    
+    browser = Chrome.create(headless: true, typ: 'desktop')
+    load_from_cached_file || expand_comments_and_save_page(browser)
+    browser.quit
+    
+    url = "http://localhost:#{port}/#{@blog.username}/#{File.basename(downloaded_file_path)}"
+    putsd url
+    `wget -nv --timeout=2 -P #{Blog.out_dir}/#{@blog.username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
+    @blog.stop_httpd
+  end
+  
+  private
   def save_page(contents)
-    # remove_scripts = Loofah::Scrubber.new do |node|
-    #     if node.name == "script"
-    #         node.remove
-    #         Loofah::Scrubber::STOP # don't bother with the rest of the subtree
-    #     end
-    # end
-    # contents = Loofah.document(contents).scrub!(remove_scripts).to_s
-    # contents = Loofah.document(contents).scrub!(:prune).to_s
-    # contents = Sanitize.clean(contents, :remove_contents => ['script'])
-    
-    
     doc = Nokogiri.HTML(contents) # Parse the document
     doc.css('script').remove # Remove <script>…</script>
     doc.css('noscript').remove
@@ -157,49 +197,12 @@ class Post
     contents = doc.to_html
     
     # Inject my content
-    contents.sub!('</head>', '</head><!--#include virtual="/include/head?host=$host&uri=$request_uri" -->')
-    contents.sub!(%r{(<body.+?>)}, '\1<!--#include virtual="/include/body?host=$host&uri=$request_uri" -->')
+    # contents.sub!('</head>', '</head><!--#include virtual="/include/head?host=$host&uri=$request_uri" -->')
+    # contents.sub!(%r{(<body.+?>)}, '\1<!--#include virtual="/include/body?host=$host&uri=$request_uri" -->')
     
-    FileUtils.mkdir_p(user.cached_posts_dir)
+    FileUtils.mkdir_p(@blog.cached_posts_dir)
     File.open(downloaded_file_path, 'w') do |file|
       file << contents
     end
-  end
-  
-  def user
-    return @user ||= User.new(@url[%r{://(.+?)\.}, 1])
-  end
-  
-  def post_id
-    return @post_id ||= @url[%r{(\d+)\.html}, 1]
-  end
-  
-  def init_title_and_time(html_doc)
-    begin
-      @title = html_doc.at_css('h1')&.text&.strip
-      
-      time_str = html_doc.at_css('time.published').text.strip
-      @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
-      
-      @comment_count = html_doc.css('.b-tree-twig').length
-    rescue => e
-      puts "Error for #{self.url}:"
-      puts e.inspect
-      return false
-    end
-  end
-  
-  def downloaded_file_path
-    return "#{user.cached_posts_dir}/#{self.post_id}.html"
-  end
-  
-  def to_json
-    return {
-      url: @url,
-      title: @title,
-      time: @time,
-      id: post_id,
-      comment_count: @comment_count
-    }
   end
 end

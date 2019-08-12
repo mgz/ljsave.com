@@ -74,7 +74,7 @@ class PostDownloader
       browser.navigate.to(@url + '#comments')
     end
     
-    browser.execute_script("document.getElementById('comments').scrollIntoView(true)")
+    browser.execute_script("if(document.getElementById('comments')){document.getElementById('comments').scrollIntoView(true)}")
     
     
     contents = CommentExpander.expand_all_comments_on_page(browser)

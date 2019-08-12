@@ -63,6 +63,10 @@ class PostDownloader
     putsd "Downloading #{@url}"
     browser.navigate.to(@url + '#comments')
     
+    if(div = browser.find_elements(class: 'b-msgsystem-warningbox-confirm').first)
+      div.find_element(tag_name: 'button').click
+    end
+    
     if (checkbox = browser.find_elements(id: 'view-own').first) && checkbox.attribute('checked') != 'true'
       putsd 'Setting READABILITY mode'
       browser.execute_script("arguments[0].click();", checkbox)

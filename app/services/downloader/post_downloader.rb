@@ -141,7 +141,7 @@ class PostDownloader
     end
     
     begin
-      @title = html_doc.at_css('h1')&.text&.strip
+      @title = html_doc.at_css('h1')&.text&.strip || 'NO TITLE'
       
       time_str = html_doc.at_css('time.published').text.strip
       @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')

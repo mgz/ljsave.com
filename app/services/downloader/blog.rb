@@ -204,7 +204,7 @@ class Blog
     port = start_httpd
 
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
-      next if post.downloaded?
+      next if post.downloaded? && ENV['REMIRROR'] != '1'
       puts "Will mirror #{post}"
       begin
         post.mirror(port)

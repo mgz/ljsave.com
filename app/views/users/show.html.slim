@@ -14,7 +14,7 @@
           - post = OpenStruct.new(post)
           - post.time = Time.parse(post.time)
           li.list-group-item.d-flex.justify-content-between.align-items-center
-            = link_to post.title, "/user/#{post.user['username']}/#{post.post_id}"
+            = link_to post.title, "/user/#{(post.user || post.blog)['username']}/#{post.post_id}"
             span.badge.badge-white
               - if post.comment_count > 0
                 span.comments(title='Кол-во комментариев')

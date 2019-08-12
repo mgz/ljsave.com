@@ -206,7 +206,12 @@ class Blog
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
       next if post.downloaded?
       puts "Will mirror #{post}"
-      post.mirror(port)
+      begin
+        post.mirror(port)
+      rescue => e
+        puts e
+        retry
+      end
     end
     stop_httpd
   end

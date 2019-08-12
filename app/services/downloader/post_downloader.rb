@@ -86,23 +86,22 @@ class PostDownloader
     page_count = browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
     putsd "Post has #{page_count} pages"
     
-    html = Nokogiri::HTML(contents)
+    @html = Nokogiri::HTML(contents)
     
-    init_title_and_time(html)
+    init_title_and_time(@html)
     
-    html.css('.b-pager')&.remove
-    html.css('.b-xylem')[1]&.remove
-    html.css('.b-xylem-cell')&.remove
-    html.css('.b-singlepost-standout')&.remove
-    html.css('footer')&.remove
-    html.css('.b-discoverytimes-wrapper')&.remove
-    html.css('.ljsale')&.remove
-    html.css('.lj-recommended')&.remove
+    @html.css('.b-pager')&.remove
+    @html.css('.b-xylem')[1]&.remove
+    @html.css('.b-xylem-cell')&.remove
+    @html.css('.b-singlepost-standout')&.remove
+    @html.css('footer')&.remove
+    @html.css('.b-discoverytimes-wrapper')&.remove
+    @html.css('.ljsale')&.remove
+    @html.css('.lj-recommended')&.remove
     
     
     if page_count > 1
-      
-      comments_html = html.at_css('#comments')
+      comments_html = @html.at_css('#comments')
       (2..page_count).each do |page_num|
         putsd "+++ Next page: #{page_num} / #{page_count}"
         browser.navigate.to(@url + "?page=#{page_num}")
@@ -115,11 +114,12 @@ class PostDownloader
         comments_html.add_child(more_content.inner_html)
       end
     end
-    
-    
-    html.css("div[prev-next-nav]")&.remove
-    html.css('.b-leaf-footer')&.remove
-    contents = html.to_html
+
+    browser.quit
+
+    @html.css("div[prev-next-nav]")&.remove
+    @html.css('.b-leaf-footer')&.remove
+    contents = @html.to_html
     save_page(contents)
   end
   
@@ -131,7 +131,15 @@ class PostDownloader
     return @post_id ||= @url[%r{(\d+)\.html}, 1]
   end
   
-  def init_title_and_time(html_doc)
+  def init_title_and_time(html_doc = nil)
+    unless html_doc
+      html_doc = @html
+    end
+    unless html_doc
+      download_and_save
+      html_doc = @html
+    end
+    
     begin
       @title = html_doc.at_css('h1')&.text&.strip
       

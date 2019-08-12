@@ -20,7 +20,7 @@ if (post_url = ARGV[0]) && post_url.start_with?('https://')
   putsd "Fetching post #{post_url}"
   # post = Post.new('https://palaman.livejournal.com/410686.html')
   post = Post.new(post_url)
-  post.expand_comments_and_save_page(BROWSER)
+  post.download_and_save
 elsif ('browser' == ARGV[0])
   BROWSER = create_chrome(headless: true, typ: 'desktop')
   sleep 10_000_000

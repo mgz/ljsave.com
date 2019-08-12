@@ -48,10 +48,8 @@ class PostDownloader
         end
       end
       
-      browser = create_chrome(headless: true, typ: 'desktop')
-      
       begin
-        post.expand_comments_and_save_page(browser)
+        post.download_and_save
         browser.quit
       rescue => e
         puts "#{e.inspect} for #{url}"
@@ -63,8 +61,10 @@ class PostDownloader
     return results.compact
   end
   
-  def expand_comments_and_save_page(browser)
+  def download_and_save
     putsd "Downloading #{@url}"
+    
+    browser = Chrome.create(headless: true, typ: 'desktop')
     browser.navigate.to(@url + '#comments')
     
     if(div = browser.find_elements(class: 'b-msgsystem-warningbox-confirm').first)
@@ -169,10 +169,7 @@ class PostDownloader
     httpd_port ||= @blog.start_httpd
     @blog.create_mirror_dir
     
-    browser = Chrome.create(headless: true, typ: 'desktop')
-    # load_from_cached_file ||
-      expand_comments_and_save_page(browser)
-    browser.quit
+    download_and_save
     
     url = "http://localhost:#{httpd_port}/#{@blog.username}/#{File.basename(downloaded_file_path)}"
     putsd url

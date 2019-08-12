@@ -6,7 +6,7 @@ namespace :scraper do
   
   
     url = ENV['url']
-    puts "url: #{url}"
+    # puts "url: #{url}"
     post = PostDownloader.new(url)
     post.mirror
   end

@@ -47,11 +47,11 @@ class Post
   
   def replace_links_to_other_downloaded_blogs!(html: nil, downloaded_user: nil)
     (html || @html).gsub!(%r{"http.?://([^.]+?).livejournal.com/((\d+).html([^"\s]+?)?)?"}) do |str|
-      puts "str: #{str}"
+      # puts "str: #{str}"
       username = $1
       post_id = $3
       
-      puts "username: #{username}, post_id: #{post_id}"
+      # puts "username: #{username}, post_id: #{post_id}"
       
       if username != 'www' && (user = downloaded_user || User.downloaded_users.find { |u| u.name == username })
         if post_id.present?

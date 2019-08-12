@@ -25,9 +25,9 @@ class Blog
     # "https://www.livejournal.com/view/?type=month&user=#{@username}&y=$year&m=$month"
   end
   
-  def get_post_urls(cached: false)
+  def get_posts(cached: false)
     if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
-      return File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| l.strip } #.take(20)
+      return File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| PostDownloader.new(l.strip) } #.take(20)
     end
     
     post_urls = []
@@ -50,7 +50,7 @@ class Blog
     post_urls = results.compact.flatten
     FileUtils.mkdir_p(cached_posts_dir)
     File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(post_urls.join("\n"))
-    return post_urls
+    return post_urls.map { |l| PostDownloader.new(l.strip) }
   end
   
   def get_post_urls_from_archive_page(year, month)
@@ -61,17 +61,21 @@ class Blog
   end
   
   def create_mirror_dir
-    FileUtils.mkdir_p("#{Blog.out_dir}/#{@username}_files")
+    FileUtils.mkdir_p("#{out_dir}/#{@username}_files")
+  end
+  
+  def create_cache_dir
+    FileUtils.mkdir_p(Blog.cached_posts_dir)
   end
   
   def start_httpd
     port = Blog.get_free_port
-    puts "Starting httpd..."
+    puts "Starting httpd:#{port}..."
     # `cd scraped/cache && ruby -run -e httpd . -p #{Blog.get_free_port}  >/dev/null 2>/dev/null`
-    @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{port}",  :pgroup => true)
+    @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{port} >/dev/null 2>/dev/null",  :pgroup => true)
     
     
-    puts "Started process #{@httpd_server_process}"
+    # puts "Started process #{@httpd_server_process}"
     sleep 3
     return port
   end
@@ -172,8 +176,8 @@ class Blog
     return "scraped/cache/#{@username}"
   end
   
-  def self.out_dir
-    return "scraped/out"
+  def out_dir
+    return "public/lj/#{@username}/"
   end
   
   def self.get_free_port
@@ -191,5 +195,19 @@ class Blog
   
   def self.port_open?(port)
     system("lsof -i:#{port}", out: '/dev/null')
+  end
+  
+  def mirror
+    posts = get_posts(cached: ENV['USE_CACHE'] == '1')
+    putsd "Found #{posts.size} posts"
+
+    port = start_httpd
+
+    Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
+      next if post.downloaded?
+      puts "Will mirror #{post}"
+      post.mirror(port)
+    end
+    stop_httpd
   end
 end

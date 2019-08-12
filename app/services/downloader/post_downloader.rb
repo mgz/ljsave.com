@@ -18,7 +18,7 @@ class PostDownloader
   end
   
   def load_from_cached_file
-    if File.exists?(downloaded_file_path)
+    if cached?
       html = Nokogiri::HTML(open(downloaded_file_path))
       if init_title_and_time(html)
         return true
@@ -26,6 +26,10 @@ class PostDownloader
     end
     
     return false
+  end
+  
+  def downloaded?
+    return File.exists?(downloaded_file_path)
   end
   
   def self.save_posts(urls)
@@ -146,6 +150,10 @@ class PostDownloader
     return "#{@blog.cached_posts_dir}/#{self.post_id}.html"
   end
   
+  def to_s
+    return "https://#{@blog.username}.livejournal.com/#{@id}.html"
+  end
+  
   def to_json
     return {
       url: @url,
@@ -156,18 +164,20 @@ class PostDownloader
     }
   end
   
-  def mirror
-    port = @blog.start_httpd
+  def mirror(httpd_port = nil)
+    httpd_was_running = httpd_port != nil
+    httpd_port ||= @blog.start_httpd
     @blog.create_mirror_dir
     
     browser = Chrome.create(headless: true, typ: 'desktop')
-    load_from_cached_file || expand_comments_and_save_page(browser)
+    # load_from_cached_file ||
+      expand_comments_and_save_page(browser)
     browser.quit
     
-    url = "http://localhost:#{port}/#{@blog.username}/#{File.basename(downloaded_file_path)}"
+    url = "http://localhost:#{httpd_port}/#{@blog.username}/#{File.basename(downloaded_file_path)}"
     putsd url
-    `wget -nv --timeout=2 -P #{Blog.out_dir}/#{@blog.username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
-    @blog.stop_httpd
+    `wget -q -nv --timeout=2 -P #{@blog.out_dir}/#{@blog.username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
+    @blog.stop_httpd unless httpd_was_running
   end
   
   private

@@ -27,7 +27,9 @@ class Blog
   
   def get_posts(cached: false)
     if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
-      return File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| PostDownloader.new(l.strip) } #.take(20)
+      posts = File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| PostDownloader.new(l.strip) }
+      posts.each{|po| po.load_from_cached_file}
+      return posts
     end
     
     post_urls = []
@@ -163,8 +165,7 @@ class Blog
   end
   
   def rebuild_index_file(cached: true)
-    posts = get_post_urls(cached: cached).map do |post_url|
-      post = PostDownloader.new(post_url)
+    posts = get_posts(cached: cached).map do |post|
       post.load_from_cached_file
       post
     end

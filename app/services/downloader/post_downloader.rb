@@ -18,7 +18,7 @@ class PostDownloader
   end
   
   def load_from_cached_file
-    if cached?
+    if downloaded?
       html = Nokogiri::HTML(open(downloaded_file_path))
       if init_title_and_time(html)
         return true

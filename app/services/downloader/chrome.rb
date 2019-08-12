@@ -1,9 +1,11 @@
-require 'rubygems'
-require 'selenium-webdriver'
-require 'pathname'
-require 'fileutils'
-require 'time'
-require 'active_support/all'
+if Rails.env.production? == false
+  require 'rubygems'
+  require 'selenium-webdriver'
+  require 'pathname'
+  require 'fileutils'
+  require 'time'
+  require 'active_support/all'
+end
 
 class Chrome
   def self.create(headless: true, typ: 'desktop')

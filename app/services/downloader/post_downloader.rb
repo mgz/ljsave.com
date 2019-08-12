@@ -18,8 +18,8 @@ class PostDownloader
   end
   
   def load_from_cached_file
-    if downloaded?
-      html = Nokogiri::HTML(open(downloaded_file_path))
+    if cached?
+      html = Nokogiri::HTML(open(cached_file_path))
       if init_title_and_time(html)
         return true
       end
@@ -28,14 +28,14 @@ class PostDownloader
     return false
   end
   
-  def downloaded?
-    return File.exists?(downloaded_file_path)
+  def cached?
+    return File.exists?(cached_file_path)
   end
   
   def self.save_posts(urls)
     results = Parallel.map(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
       post = PostDownloader.new(url)
-      if File.exists?(post.downloaded_file_path)
+      if File.exists?(post.cached_file_path)
         # putsd "Skipping #{post.url}"
         
         post.load_from_cached_file
@@ -154,7 +154,7 @@ class PostDownloader
     end
   end
   
-  def downloaded_file_path
+  def cached_file_path
     return "#{@blog.cached_posts_dir}/#{self.post_id}.html"
   end
   
@@ -179,7 +179,7 @@ class PostDownloader
     
     download_and_save
     
-    url = "http://localhost:#{httpd_port}/#{@blog.username}/#{File.basename(downloaded_file_path)}"
+    url = "http://localhost:#{httpd_port}/#{@blog.username}/#{File.basename(cached_file_path)}"
     putsd url
     `wget -q -nv --timeout=2 -P #{@blog.out_dir}/#{@blog.username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}`
     @blog.stop_httpd unless httpd_was_running
@@ -220,7 +220,7 @@ class PostDownloader
     # contents.sub!(%r{(<body.+?>)}, '\1<!--#include virtual="/include/body?host=$host&uri=$request_uri" -->')
     
     FileUtils.mkdir_p(@blog.cached_posts_dir)
-    File.open(downloaded_file_path, 'w') do |file|
+    File.open(cached_file_path, 'w') do |file|
       file << contents
     end
   end

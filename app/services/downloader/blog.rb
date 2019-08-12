@@ -97,7 +97,7 @@ class Blog
     ensure_httpd_started
     
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
-      url = "http://localhost:#{http_port}/#{post.user.name}/#{File.basename(post.downloaded_file_path)}"
+      url = "http://localhost:#{http_port}/#{post.user.name}/#{File.basename(post.cached_file_path)}"
       putsd url
       # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url} >/dev/null 2>/dev/null `
       `wget -q -nv --timeout=2 -P #{Blog.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
@@ -205,7 +205,7 @@ class Blog
     port = start_httpd
 
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
-      next if post.downloaded? && ENV['REMIRROR'] != '1'
+      next if post.cached? && ENV['REMIRROR'] != '1'
       puts "Will mirror #{post}"
       begin
         post.mirror(port)

@@ -4,7 +4,7 @@ require 'tty-progressbar'
 
 require_relative 'comment_expander.rb'
 
-class PostDownloader
+class RemotePost
   attr_reader :url, :title, :time, :comment_count
   
   def initialize(url)
@@ -14,7 +14,7 @@ class PostDownloader
   end
   
   def self.by_blog_and_id(blog, id)
-    return PostDownloader.new("https://#{blog.username}.livejournal.com/#{id}.html")
+    return RemotePost.new("https://#{blog.username}.livejournal.com/#{id}.html")
   end
   
   def load_from_cached_file
@@ -34,7 +34,7 @@ class PostDownloader
   
   def self.save_posts(urls)
     results = Parallel.map(urls, in_processes: 8, progress: "Saving #{urls.size} posts") do |url|
-      post = PostDownloader.new(url)
+      post = RemotePost.new(url)
       if File.exists?(post.cached_file_path)
         # putsd "Skipping #{post.url}"
         

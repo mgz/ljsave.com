@@ -27,7 +27,7 @@ class Blog
   
   def get_posts(cached: false)
     if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
-      posts = File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| PostDownloader.new(l.strip) }
+      posts = File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| RemotePost.new(l.strip) }
       posts.each{|po| po.load_from_cached_file}
       return posts
     end
@@ -59,7 +59,7 @@ class Blog
     html = Nokogiri::HTML(read_url("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
     urls = html.css('a').select { |a| a.attribute('href')&.value =~ %r{://#{@username}.livejournal.com/\d+.html} }.map { |a| a.attribute('href').value }
     putsd "    #{urls.size} for #{year}.#{month}"
-    return urls.map{|u| PostDownloader.new(u.strip)}
+    return urls.map{|u| RemotePost.new(u.strip)}
   end
   
   def create_mirror_dir

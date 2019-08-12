@@ -32,7 +32,7 @@ elsif (username = ARGV[0])
 
   unless ENV['NO_SAVE_POSTS'] == '1'
     # posts = Post.save_posts(post_urls[-5, 3])
-    posts = PostDownloader.save_posts(post_urls)
+    posts = RemotePost.save_posts(post_urls)
   end
   
   unless ENV['NO_WGET'] == '1'

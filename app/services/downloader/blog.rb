@@ -215,5 +215,6 @@ class Blog
       end
     end
     stop_httpd
+    create_index_file(posts)
   end
 end

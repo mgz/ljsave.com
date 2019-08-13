@@ -51,7 +51,7 @@ class Blog
     
     posts = results.compact.flatten
     FileUtils.mkdir_p(cached_posts_dir)
-    File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(posts.map{|po| po.url.join("\n")})
+    File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(posts.map{|po| po.url}.join("\n"))
     return posts
   end
   

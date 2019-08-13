@@ -44,7 +44,7 @@ class Blog
       end
     end
     
-    results = Parallel.map(years_and_months, in_threads: 16) do |year, month|
+    results = Parallel.map(years_and_months, in_threads: 1) do |year, month|
       # putsd "Now at #{year}.#{month}"
       get_posts_from_archive_page(year, month)
     end

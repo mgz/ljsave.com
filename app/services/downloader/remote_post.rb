@@ -7,10 +7,10 @@ require_relative 'comment_expander.rb'
 class RemotePost
   attr_reader :url, :title, :time, :comment_count, :blog
   
-  def initialize(url)
+  def initialize(url, blog: nil)
     @url = url
     @id = url[%r{.livejournal.com/(\d+).html}, 1].to_i
-    @blog = Blog.new(url[%r{://(.+?).livejournal.com}, 1])
+    @blog = blog || Blog.new(url[%r{://(.+?).livejournal.com}, 1])
     load_from_cache
   end
   

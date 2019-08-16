@@ -145,7 +145,13 @@ class Blog
     putsd "Found #{posts.size} posts"
 
     port = start_httpd
-
+    mirror_posts_from_port(posts, port)
+    stop_httpd
+    create_index_file(posts)
+  end
+  
+  private
+  def mirror_posts_from_port(posts, port)
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
       next if post.cached? && ENV['REMIRROR'] != '1'
       puts "Will mirror #{post}"
@@ -156,7 +162,5 @@ class Blog
         retry
       end
     end
-    stop_httpd
-    create_index_file(posts)
   end
 end

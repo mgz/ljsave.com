@@ -73,7 +73,6 @@ class Blog
   def start_httpd
     port = Blog.get_free_port
     puts "Starting httpd:#{port}..."
-    # `cd scraped/cache && ruby -run -e httpd . -p #{Blog.get_free_port}  >/dev/null 2>/dev/null`
     @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{port} >/dev/null 2>/dev/null",  :pgroup => true)
     
     
@@ -83,17 +82,13 @@ class Blog
   end
   
   def stop_httpd
-    # @httpd_server_process.stop
-    # `kill #{@httpd_server_process}`
     Process.kill('TERM', -Process.getpgid(@httpd_server_process))
-    # Process.wait @httpd_server_process
   end
   
   def load_assets(posts)
     http_port = Blog.get_free_port
     putsd "Starting http server on port #{http_port}..."
     create_mirror_dir
-    # `pkill -f "p #{http_port}"`
     ensure_httpd_started
     
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
@@ -101,15 +96,7 @@ class Blog
       putsd url
       # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url} >/dev/null 2>/dev/null `
       `wget -q -nv --timeout=2 -P #{Blog.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
-      # FileUtils.rm(html_file)
     end
-    
-    # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links -i cache/url_list.txt >/dev/null 2>/dev/null`
-    # `cat cache/url_list.txt | parallel --gnu "wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links {} >/dev/null 2>/dev/null"`
-    # `xargs -n 1 -P 4 -i wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links {} >/dev/null 2>/dev/null < cache/url_list.txt`
-    
-    
-    # Process.kill(9, -Process.getpgid(http_server_thread))
   end
   
   def create_index_file(posts)
@@ -122,43 +109,8 @@ class Blog
       years_and_posts[post.time.year] << post
     end
     
-    # builder = Nokogiri::HTML::Builder.new(:encoding => 'UTF-8') do |doc|
-    #   doc.div.years do
-    #     years_and_posts.keys.sort.each do |year|
-    #       doc.div.card(class: 'mb-5') do
-    #         doc.h5(class: 'card-header') do
-    #           doc.text year
-    #         end
-    #         doc.ul(class: 'list-group list-group-flush') do
-    #           years_and_posts[year].each do |post|
-    #             doc.li(class: 'list-group-item d-flex justify-content-between align-items-center') do
-    #               doc.a(href: "/lj/#{post.user.name}/#{post.user.username}_files/#{post.user.name}/#{post.post_id}.html") do
-    #                 doc.text post.title
-    #               end
-    #               if post.time
-    #                 doc.a(href: post.url, target: '_blank') do
-    #                   doc.span(class: 'badge badge-white') do
-    #                     doc.text post.time.strftime('%d %b %Y')
-    #                     doc.text ' '
-    #                     doc.small do
-    #                       doc.text post.time.strftime('%H:%M')
-    #                     end
-    #                   end
-    #                 end
-    #               end
-    #             end
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-    # end
-    
-    # name = @username
-    # body = builder.to_html
-    # File.write("#{User.out_dir}/#{@username}.html", ERB.new(File.read(File.expand_path(File.dirname(__FILE__) + '/index.html.erb'))).result(binding))
-    
     create_mirror_dir
+    
     File.write("#{out_dir}/#{@username}.json", {
       posts: posts.map(&:to_json),
       years: years_and_posts
@@ -183,8 +135,6 @@ class Blog
   end
   
   def self.get_free_port
-    # return 5012
-    # require 'socket'
     port = 5012
     while port < 7000
       if Blog.port_open?(port)

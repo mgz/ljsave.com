@@ -13,9 +13,21 @@ class UsersController < ApplicationController
     json = @user.posts_hash
     @years = json['years']
     
+    @too_many_posts = json['posts'].size > 5000
+    
     @navbar_text = "Копия ЖЖ #{@user.name}.livejournal.com"
     
     @page_title = "Копия ЖЖ #{@user.name} с развернутыми комментариями"
+  end
+  
+  def year
+    @user = User.new(params[:username])
+    @year = params[:year]
+    @posts = @user.posts_hash['years'][@year]
+        
+    @navbar_text = "Копия ЖЖ #{@user.name}.livejournal.com (#{@year})"
+
+    @page_title = "Копия ЖЖ #{@user.name} с развернутыми комментариями за #{@year} г."
   end
   
   def post

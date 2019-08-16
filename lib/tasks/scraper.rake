@@ -7,8 +7,7 @@ namespace :scraper do
   
     url = ENV['url']
     # puts "url: #{url}"
-    post = RemotePost.new(url)
-    post.mirror
+    Blog.mirror_post(url)
   end
   
   desc "Download missing posts"

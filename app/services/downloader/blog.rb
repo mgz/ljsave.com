@@ -6,57 +6,18 @@ require 'active_support/all'
 require_relative 'functions.rb'
 
 class Blog
-  attr_reader :username
+  attr_reader :username, :httpd_port
   
   def initialize(username)
     @username = username
   end
   
-  def get_date_range
-    start_year = 2001
-    start_month = 1
-    
-    end_year = Date.today.year
-    end_month = Date.today.month
-    
-    return start_year, start_month, end_year, end_month
-    
-    # "https://www.livejournal.com/view/?type=month&user=#{@username}&y=$year&m=$month"
-  end
-  
-  def get_posts(cached: false)
-    if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
-      posts = File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| RemotePost.new(l.strip) }
-      posts.each{|po| po.load_from_cached_file}
-      return posts
+  def self.mirror_post(url)
+    post = RemotePost.new(url)
+    blog = post.blog
+    blog.with_running_httpd do
+      post.mirror
     end
-    
-    start_year, start_month, end_year, end_month = get_date_range
-    
-    years_and_months = []
-    
-    (start_year..end_year).each do |year|
-      (1..12).each do |month|
-        next if year == end_year && month > end_month
-        years_and_months << [year, month]
-      end
-    end
-    
-    results = Parallel.map(years_and_months, in_threads: 1) do |year, month|
-      get_posts_from_archive_page(year, month)
-    end
-    
-    posts = results.compact.flatten
-    FileUtils.mkdir_p(cached_posts_dir)
-    File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(posts.map{|po| po.url}.join("\n"))
-    return posts
-  end
-  
-  def get_posts_from_archive_page(year, month)
-    html = Nokogiri::HTML(read_url("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
-    urls = html.css('a').select { |a| a.attribute('href')&.value =~ %r{://#{@username}.livejournal.com/\d+.html} }.map { |a| a.attribute('href').value }
-    putsd "    #{urls.size} for #{year}.#{month}"
-    return urls.map{|u| RemotePost.new(u.strip)}
   end
   
   def create_mirror_dir
@@ -66,13 +27,21 @@ class Blog
   def create_cache_dir
     FileUtils.mkdir_p(Blog.cached_posts_dir)
   end
+
+  def with_running_httpd
+    start_httpd
+    begin
+      yield
+    ensure
+      stop_httpd
+    end
+  end
   
   def start_httpd
-    port = Blog.get_free_port
-    puts "Starting httpd:#{port}..."
-    @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{port} >/dev/null 2>/dev/null",  :pgroup => true)
+    @httpd_port = Blog.get_free_port
+    puts "Starting httpd:#{@httpd_port}..."
+    @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{@httpd_port} >/dev/null 2>/dev/null",  :pgroup => true)
     sleep 3
-    return port
   end
   
   def stop_httpd
@@ -109,11 +78,7 @@ class Blog
   end
   
   def rebuild_index_file(cached: true)
-    posts = get_posts(cached: cached).map do |post|
-      post.load_from_cached_file
-      post
-    end
-    
+    posts = get_posts(cached: cached)
     create_index_file(posts)
   end
   
@@ -144,23 +109,69 @@ class Blog
     posts = get_posts(cached: ENV['USE_CACHE'] == '1')
     putsd "Found #{posts.size} posts"
 
-    port = start_httpd
-    mirror_posts_from_port(posts, port)
-    stop_httpd
+    with_running_httpd do
+      mirror_posts(posts)
+    end
     create_index_file(posts)
   end
   
   private
-  def mirror_posts_from_port(posts, port)
+  def mirror_posts(posts)
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
       next if post.cached? && ENV['REMIRROR'] != '1'
       puts "Will mirror #{post}"
       begin
-        post.mirror(port)
+        post.mirror(@httpd_port)
       rescue => e
         puts e
         retry
       end
     end
+  end
+
+  def get_date_range
+    start_year = 2001
+    start_month = 1
+  
+    end_year = Date.today.year
+    end_month = Date.today.month
+  
+    return start_year, start_month, end_year, end_month
+  
+    # "https://www.livejournal.com/view/?type=month&user=#{@username}&y=$year&m=$month"
+  end
+
+  def get_posts(cached: false)
+    if cached && File.exists?(cached_posts_dir + '/_post_urls.txt')
+      posts = File.open(cached_posts_dir + '/_post_urls.txt').readlines.map { |l| RemotePost.new(l.strip) }
+      return posts
+    end
+  
+    start_year, start_month, end_year, end_month = get_date_range
+  
+    years_and_months = []
+  
+    (start_year..end_year).each do |year|
+      (1..12).each do |month|
+        next if year == end_year && month > end_month
+        years_and_months << [year, month]
+      end
+    end
+  
+    results = Parallel.map(years_and_months, in_threads: 1) do |year, month|
+      get_posts_from_archive_page(year, month)
+    end
+  
+    posts = results.compact.flatten
+    FileUtils.mkdir_p(cached_posts_dir)
+    File.open(cached_posts_dir + '/_post_urls.txt', 'w').write(posts.map{|po| po.url}.join("\n"))
+    return posts
+  end
+
+  def get_posts_from_archive_page(year, month)
+    html = Nokogiri::HTML(read_url("https://#{@username}.livejournal.com/#{year}/#{sprintf('%02d', month)}/"))
+    urls = html.css('a').select { |a| a.attribute('href')&.value =~ %r{://#{@username}.livejournal.com/\d+.html} }.map { |a| a.attribute('href').value }
+    putsd "    #{urls.size} for #{year}.#{month}"
+    return urls.map{|u| RemotePost.new(u.strip)}
   end
 end

@@ -81,7 +81,7 @@ class RemotePost
     browser.execute_script("if(document.getElementById('comments')){document.getElementById('comments').scrollIntoView(true)}")
     
     
-    contents = CommentExpander.expand_all_comments_on_page(browser)
+    contents = CommentExpander.new(browser).expand_all_comments_on_page
     
     page_count = browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
     putsd "Post has #{page_count} pages"
@@ -105,7 +105,7 @@ class RemotePost
       (2..page_count).each do |page_num|
         putsd "+++ Next page: #{page_num} / #{page_count}"
         browser.navigate.to(@url + "?page=#{page_num}")
-        more_content = Nokogiri::HTML(CommentExpander.expand_all_comments_on_page(browser)).at_css('#comments')
+        more_content = Nokogiri::HTML(CommentExpander.new(browser).expand_all_comments_on_page).at_css('#comments')
         
         # Remove pager
         more_content.css('.b-xylem')&.remove

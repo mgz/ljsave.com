@@ -121,7 +121,7 @@ class Blog
       next if post.cached? && ENV['REMIRROR'] != '1'
       puts "Will mirror #{post}"
       begin
-        post.mirror(@httpd_port)
+        post.mirror
       rescue => e
         puts e
         retry

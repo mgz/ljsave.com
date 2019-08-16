@@ -46,6 +46,10 @@ class RemotePost
     end
     return results.compact
   end
+
+  def cached?
+    return File.exists?(cached_file_path)
+  end
   
   def user
     return @user ||= Blog.new(@url[%r{://(.+?)\.}, 1])
@@ -232,9 +236,4 @@ class RemotePost
     end
     return false
   end
-
-  def cached?
-    return File.exists?(cached_file_path)
-  end
-  
 end

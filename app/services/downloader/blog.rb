@@ -14,7 +14,6 @@ class Blog
   
   def get_date_range
     start_year = 2001
-    # start_year = 2018
     start_month = 1
     
     end_year = Date.today.year
@@ -32,7 +31,6 @@ class Blog
       return posts
     end
     
-    post_urls = []
     start_year, start_month, end_year, end_month = get_date_range
     
     years_and_months = []
@@ -45,7 +43,6 @@ class Blog
     end
     
     results = Parallel.map(years_and_months, in_threads: 1) do |year, month|
-      # putsd "Now at #{year}.#{month}"
       get_posts_from_archive_page(year, month)
     end
     
@@ -74,9 +71,6 @@ class Blog
     port = Blog.get_free_port
     puts "Starting httpd:#{port}..."
     @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{port} >/dev/null 2>/dev/null",  :pgroup => true)
-    
-    
-    # puts "Started process #{@httpd_server_process}"
     sleep 3
     return port
   end
@@ -94,14 +88,11 @@ class Blog
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
       url = "http://localhost:#{http_port}/#{post.user.name}/#{File.basename(post.cached_file_path)}"
       putsd url
-      # `wget -c --timeout=2 -q -P out/files -nv --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url} >/dev/null 2>/dev/null `
       `wget -q -nv --timeout=2 -P #{Blog.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
     end
   end
   
   def create_index_file(posts)
-    page_title = "#{@username}.livejournal.com"
-    
     years_and_posts = Hash.new { |h, k| h[k] = [] }
     posts.each do |post|
       next unless post.title.present?

@@ -46,16 +46,21 @@ class Post
   # end
   
   def replace_links_to_other_downloaded_blogs!(html: nil, downloaded_user: nil)
-    (html || @html).gsub!(%r{"http.?://([^.]+?).livejournal.com/((\d+).html([^"\s]+?)?)?"}) do |str|
+    (html || @html).gsub!(%r{"http.?://([^.]+?).livejournal.com(/(\d+).html([^"\s]+?)?)?"}) do |str|
       # puts "str: #{str}"
       username = $1
       post_id = $3
+      remaining_part = $4
       
       # puts "username: #{username}, post_id: #{post_id}"
       
-      if username != 'www' && (user = downloaded_user || User.downloaded_users.find { |u| u.name == username })
+      if (user = get_mirrored_user_by_username(username, downloaded_user))
         if post_id.present?
-          "\"#{user.get_url}/#{post_id}\""
+          if remaining_part
+            "\"#{user.get_url}/#{post_id}#{remaining_part}\""
+          else
+            "\"#{user.get_url}/#{post_id}\""
+          end
         else
           "\"#{user.get_url}\""
         end
@@ -64,5 +69,11 @@ class Post
       end
     end
     return html || @html
+  end
+  
+  def get_mirrored_user_by_username(username, downloaded_user)
+    if username != 'www' && (user = downloaded_user || User.downloaded_users.find { |u| u.name == username })
+      return user
+    end
   end
 end

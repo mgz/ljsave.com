@@ -10,7 +10,7 @@ class RemotePost
   def initialize(url, blog: nil)
     @url = url
     @id = url[%r{.livejournal.com/(\d+).html}, 1].to_i
-    @blog = blog || Blog.new(url[%r{://(.+?).livejournal.com}, 1])
+    @blog = blog || RemoteBlog.new(url[%r{://(.+?).livejournal.com}, 1])
     load_from_cache
   end
   
@@ -52,7 +52,7 @@ class RemotePost
   end
   
   def user
-    return @user ||= Blog.new(@url[%r{://(.+?)\.}, 1])
+    return @user ||= RemoteBlog.new(@url[%r{://(.+?)\.}, 1])
   end
   
   def post_id

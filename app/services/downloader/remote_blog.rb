@@ -5,7 +5,7 @@ require 'active_support/all'
 
 require_relative 'functions.rb'
 
-class Blog
+class RemoteBlog
   attr_reader :username, :httpd_port
   
   def initialize(username)
@@ -25,7 +25,7 @@ class Blog
   end
   
   def create_cache_dir
-    FileUtils.mkdir_p(Blog.cached_posts_dir)
+    FileUtils.mkdir_p(RemoteBlog.cached_posts_dir)
   end
 
   def with_running_httpd
@@ -38,7 +38,7 @@ class Blog
   end
   
   def start_httpd
-    @httpd_port = Blog.get_free_port
+    @httpd_port = RemoteBlog.get_free_port
     puts "Starting httpd:#{@httpd_port}..."
     @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{@httpd_port} >/dev/null 2>/dev/null",  :pgroup => true)
     sleep 3
@@ -49,7 +49,7 @@ class Blog
   end
   
   def load_assets(posts)
-    http_port = Blog.get_free_port
+    http_port = RemoteBlog.get_free_port
     putsd "Starting http server on port #{http_port}..."
     create_mirror_dir
     ensure_httpd_started
@@ -57,7 +57,7 @@ class Blog
     Parallel.each(posts, in_processes: 8, progress: "Mirroring #{posts.size} HTMLs") do |post|
       url = "http://localhost:#{http_port}/#{post.user.name}/#{File.basename(post.cached_file_path)}"
       putsd url
-      `wget -q -nv --timeout=2 -P #{Blog.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
+      `wget -q -nv --timeout=2 -P #{RemoteBlog.out_dir}/#{@username}_files --page-requisites --no-cookies --no-host-directories --span-hosts -E --wait=0 --execute="robots = off"  --convert-links #{url}  >/dev/null 2>/dev/null`
     end
   end
   
@@ -93,7 +93,7 @@ class Blog
   def self.get_free_port
     port = 5012
     while port < 7000
-      if Blog.port_open?(port)
+      if RemoteBlog.port_open?(port)
         port += 1
       else
         return port

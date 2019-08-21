@@ -4,8 +4,7 @@ class UsersController < ApplicationController
   
   def index
     @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"
-    @users = Dir.glob('public/lj/*').select { |e| File.directory?(e) && e.start_with?('.') == false }.map { |e| File.basename(e) }.sort
-    @users.map!{|u| User.new(u)}
+    @users = User.downloaded_users.sort_by(&:name)
   end
   
   def show

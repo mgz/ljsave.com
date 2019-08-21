@@ -21,7 +21,7 @@ module Downloader
       @href ||= @elem.attribute('href')
     end
     
-    def self.arrange_by_depth(links)
+    def self.top_level_links(links)
       links_at_depths = {}
       links.each do |link|
         if (depth = link.depth)
@@ -29,7 +29,7 @@ module Downloader
           links_at_depths[depth] << link
         end
       end
-      return links_at_depths
+      return links_at_depths[links_at_depths.keys.min] || []
     end
     
     def depth

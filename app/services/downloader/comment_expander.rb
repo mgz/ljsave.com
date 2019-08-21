@@ -1,5 +1,9 @@
 require "awesome_print"
 module Downloader
+  class CannotExpandLinkError < StandardError
+  
+  end
+  
   class CommentExpander
     def initialize(browser)
       @browser = browser
@@ -8,46 +12,49 @@ module Downloader
     def expand_all_comments_on_page
       wait_for_page_to_load
       
-      links_clicked_times = Hash.new(0)
+      @links_clicked_times = Hash.new(0)
       
       putsd "Post has #{@browser.find_elements(class: 'b-tree-twig').size} comments"
       
-      while (links = get_expand_links).any?
+      while (links = get_links_to_click_and_expand).any?
         putsd "Got #{links.size} links to expand"
         
         links.each do |link|
-          begin
-            if links_clicked_times[link.href] > 5
-              putsd "    Clicked #{link.href} too many times, exiting..."
-              # sleep 1000
-              return @browser.page_source
-            end
-            putsd "    Clicking #{link.href}..."
-            link.click
-            links_clicked_times[link.href] += 1
-            sleep 1
-          rescue Selenium::WebDriver::Error::ElementClickInterceptedError
-            putsd '    Click intercepted'
-          rescue Selenium::WebDriver::Error::StaleElementReferenceError
-            # Element is gone, fine.
-            putsd '    Element gone'
-          rescue Selenium::WebDriver::Error::ElementNotInteractableError
-            putsd '    Element not interactable'
-          end
+          click_link(link)
         end
         sleep 1
       end
       putsd '    * Everything expanded'
-      return @browser.page_source
+      ensure
+        return @browser.page_source
     end
     
     private
-    def get_expand_links
+    def get_links_to_click_and_expand
       putsd 'Finding expand links...'
       links = ExpandLink.find_on_page(@browser)
       putsd "    Found #{links.size} links"
-      links_at_depths = ExpandLink.arrange_by_depth(links)
-      return links_at_depths[links_at_depths.keys.min] || []
+      return ExpandLink.top_level_links(links)
+    end
+    
+    def click_link(link)
+      begin
+        if @links_clicked_times[link.href] > 5
+          putsd "    Clicked #{link.href} too many times, exiting..."
+          raise CannotExpandLinkError.new(link.href)
+        end
+        putsd "    Clicking #{link.href}..."
+        link.click
+        @links_clicked_times[link.href] += 1
+        sleep 1
+      rescue Selenium::WebDriver::Error::ElementClickInterceptedError
+        putsd '    Click intercepted'
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        # Element is gone, fine.
+        putsd '    Element gone'
+      rescue Selenium::WebDriver::Error::ElementNotInteractableError
+        putsd '    Element not interactable'
+      end
     end
     
     def wait_for_page_to_load

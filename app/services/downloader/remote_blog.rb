@@ -39,7 +39,7 @@ module Downloader
     def start_httpd
       @httpd_port = RemoteBlog.get_free_port
       puts "Starting httpd:#{@httpd_port}..."
-      @httpd_server_process = Process.spawn("cd scraped/cache && ruby -run -e httpd . -p #{@httpd_port} >/dev/null 2>/dev/null", :pgroup => true)
+      @httpd_server_process = Process.spawn("cd #{RemoteBlog.cached_posts_dir} && ruby -run -e httpd . -p #{@httpd_port} >/dev/null 2>/dev/null", :pgroup => true)
       sleep 3
     end
     
@@ -82,11 +82,17 @@ module Downloader
     end
     
     def cached_posts_dir
-      return "scraped/cache/#{@username}"
+      return RemoteBlog.cached_posts_dir + "#{@username}/"
+    end
+    
+    def self.cached_posts_dir
+      prefix = Rails.env.test? ? 'test' : ''
+      return "scraped/#{prefix}cache/"
     end
     
     def out_dir
-      return "public/lj/#{@username}/"
+      prefix = Rails.env.test? ? 'test' : ''
+      return "public/#{prefix}lj/#{@username}/"
     end
     
     def self.get_free_port

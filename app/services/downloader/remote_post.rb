@@ -68,7 +68,6 @@ module Downloader
         time_str = @html_doc.at_css('time.published').text.strip
         @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
         
-        @comment_count = @html_doc.css('.b-tree-twig').length
       rescue => e
         puts "Error for #{self.url}:"
         puts e.inspect
@@ -126,7 +125,7 @@ module Downloader
     def expand_first_page_of_comments
       contents = CommentExpander.new(@browser).expand_all_comments_on_page
       
-      @page_count = @browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
+      @page_count = determine_page_count
       putsd "Post has #{@page_count} pages"
       
       @html_doc = Nokogiri::HTML(contents)
@@ -143,6 +142,10 @@ module Downloader
       @html_doc.css('.lj-recommended')&.remove
     end
     
+    def determine_page_count
+      @browser.find_elements(class: 'b-pager-page').last&.text&.to_i || 1
+    end
+    
     def scroll_to_comments
       @browser.execute_script("if(document.getElementById('comments')){document.getElementById('comments').scrollIntoView(true)}")
     end
@@ -150,6 +153,7 @@ module Downloader
     def prepare_browser
       @browser = Chrome.create(headless: true, typ: 'desktop')
       @browser.navigate.to(@url + '#comments')
+      return @browser
     end
     
     def with_browser
@@ -221,10 +225,15 @@ module Downloader
         scroll_to_comments
         expand_first_page_of_comments
         expand_next_comment_pages
+        save_comment_count
       end
       save_page
     end
-    
+
+    def save_comment_count
+      @comment_count = @html_doc.css('.b-tree-twig').length
+    end
+
     def load_from_cache
       if cached?
         @html_doc = Nokogiri::HTML(open(cached_file_path))

@@ -39,3 +39,4 @@ target
 /scraper/out
 /scraper/cache
 /.env
+/public/testlj

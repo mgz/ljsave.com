@@ -1,13 +1,15 @@
 class User
-  
+  include ActiveModel::Conversion
+  extend ActiveModel::Naming
+
   attr_reader :name
   
   def initialize(username)
     @name = username
   end
   
-  def self.get_root_url(username, request:)
-    return "//#{request.host_with_port}#{User.new(username).get_url}"
+  def to_param
+    return @name
   end
   
   def get_url
@@ -29,5 +31,9 @@ class User
   
   def posts_hash
     return JSON.parse(File.read("public/lj/#{@name}/#{@name}.json"))
+  end
+
+  def persisted?
+    false
   end
 end

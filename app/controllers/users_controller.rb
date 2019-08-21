@@ -37,8 +37,7 @@ class UsersController < ApplicationController
     post_id = params[:post_id].to_i
     
     post = Post.new(id: post_id, username: username)
-    
-    render html: post.parsed_html(self), layout: nil
+    render html: PostParser.new(post).parsed_html(self), layout: nil
   end
   
   def post_nav

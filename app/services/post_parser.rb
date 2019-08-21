@@ -1,12 +1,11 @@
-class Post
-  def initialize(id:, username:)
-    @id = id
-    @user = User.new(username)
+class PostParser
+  def initialize(post)
+    @post = post
   end
   
   def parsed_html(controller)
     @controller = controller
-    @html = File.read("public/lj/#{@user.name}/#{@user.name}_files/#{@user.name}/#{@id}.html")
+    @html = File.read("public/lj/#{@post.user.name}/#{@post.user.name}_files/#{@post.user.name}/#{@post.id}.html")
     
     inject_head_content!
     inject_body_content!
@@ -20,30 +19,20 @@ class Post
   private
   
   def inject_head_content!
-    head_content_append = @controller.render_to_string layout: nil, template: 'includes/head', locals: {username: @user.name, post_id: @id}
+    head_content_append = @controller.render_to_string layout: nil, template: 'includes/head', locals: {username: @post.user.name, post_id: @post.id}
     @html.sub!('</head>', "#{head_content_append}</head>")
   end
   
   def inject_body_content!
-    body_content_append = @controller.render_to_string layout: nil, template: 'includes/body', locals: {username: @user.name, post_id: @id}
+    body_content_append = @controller.render_to_string layout: nil, template: 'includes/body', locals: {username: @post.user.name, post_id: @post.id}
     @html.sub!(%r{(<body.+?>)}, "\\1#{body_content_append}")
   end
   
   def fix_relative_asset_urls!
-    base_path = "/lj/#{@user.name}/#{@user.name}_files"
+    base_path = "/lj/#{@post.user.name}/#{@post.user.name}_files"
     @html.gsub!('href="../', "href=\"#{base_path}/")
     @html.gsub!('src="../', "src=\"#{base_path}/")
   end
-  
-  # def replace_links_to_same_blog!
-  #   @html.gsub!(%r{"http.?://([^.]+?).livejournal.com/((\d)+.html([^"\s]+?)?)?"}) do |str|
-  #     if $2.present?
-  #       "\"#{@user.get_url}/#{$2}"
-  #     else
-  #       str
-  #     end
-  #   end
-  # end
   
   def replace_links_to_other_downloaded_blogs!(html: nil, downloaded_user: nil)
     (html || @html).gsub!(%r{"http.?://([^.]+?).livejournal.com(/(\d+).html([^"\s]+?)?)?"}) do |str|

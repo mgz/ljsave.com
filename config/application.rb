@@ -27,5 +27,6 @@ module LjsaveCom
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
     config.autoload_paths += Dir[ Rails.root.join('app', 'services', '**/',) ]
+    config.generators.javascript_engine = :js
   end
 end

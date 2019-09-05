@@ -1,4 +1,4 @@
-.card.mb-5
+.card.mb-5.year
   h5.card-header
     => year
     | г.
@@ -9,7 +9,7 @@
     - posts.each do |post|
       - post = OpenStruct.new(post)
       - post.time = Time.parse(post.time)
-      li.list-group-item.d-flex.justify-content-between.align-items-center
+      li.list-group-item.d-flex.justify-content-between.align-items-center.post
         = link_to post.title, "/user/#{(post.user || post.blog)['username']}/#{post.post_id}"
         span.badge.badge-white
           - if post.comment_count > 0

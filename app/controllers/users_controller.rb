@@ -1,19 +1,20 @@
 class UsersController < ApplicationController
   caches_action :show, expires_in: 5.minutes
+  caches_action :year, expires_in: 5.minutes
   caches_action :post, expires_in: 1.hours
   
   def index
     @page_title = "Сохраненные копии ЖЖ-дневников, с комментариями"
-    @users = Dir.glob('public/lj/*').select { |e| File.directory?(e) && e.start_with?('.') == false }.map { |e| File.basename(e) }.sort
-    @users.map!{|u| User.new(u)}
+    @users = User.downloaded_users.sort_by(&:name)
   end
   
   def show
     @user = User.new(params[:username])
-    json = @user.posts_hash
-    @years = json['years']
     
-    @too_many_posts = json['posts'].size > 5000
+    posts_hash = @user.posts_hash
+    @years = posts_hash['years']
+    
+    @too_many_posts = posts_hash['posts'].size > 5000
     
     @navbar_text = "Копия ЖЖ #{@user.name}.livejournal.com"
     
@@ -23,6 +24,7 @@ class UsersController < ApplicationController
   def year
     @user = User.new(params[:username])
     @year = params[:year]
+    
     @posts = @user.posts_hash['years'][@year]
         
     @navbar_text = "Копия ЖЖ #{@user.name}.livejournal.com (#{@year})"
@@ -35,8 +37,7 @@ class UsersController < ApplicationController
     post_id = params[:post_id].to_i
     
     post = Post.new(id: post_id, username: username)
-    
-    render html: post.parsed_html(self), layout: nil
+    render html: PostParser.new(post).parsed_html(self), layout: nil
   end
   
   def post_nav

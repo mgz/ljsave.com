@@ -7,14 +7,14 @@ namespace :scraper do
   
     url = ENV['url']
     # puts "url: #{url}"
-    Blog.mirror_post(url)
+    Downloader::RemoteBlog.mirror_post(url)
   end
   
   desc "Download missing posts"
   task :download => :environment do
     username = ENV['username']
     
-    blog = Blog.new(username)
+    blog = Downloader::RemoteBlog.new(username)
     blog.mirror
   end
 end

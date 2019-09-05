@@ -13,10 +13,12 @@ div.text-center.mb-4.mt-3
             => number_with_delimiter(user.post_count, delimiter: '&thinsp;'.html_safe)
             | шт.
 
-.text-center.mt-5
+#footer.text-center.mt-5
   = link_to 'https://t.me/ljsave' do
     i.fab.fa-telegram
-    |  Обсудить сайт, предложить идею
+    |  Обсудить сайт
+  | &nbsp;&middot;&nbsp;
+  = link_to 'Участвовать в разработке', 'https://github.com/mgz/ljsave.com'
 
 javascript:
   var socialLikesButtons = {

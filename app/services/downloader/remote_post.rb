@@ -67,7 +67,8 @@ module Downloader
         
         time_str = @html_doc.at_css('time.published').text.strip
         @time = DateTime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
-        
+
+        init_comment_count
       rescue => e
         puts "Error for #{self.url}:"
         puts e.inspect
@@ -225,12 +226,12 @@ module Downloader
         scroll_to_comments
         expand_first_page_of_comments
         expand_next_comment_pages
-        save_comment_count
+        init_comment_count
       end
       save_page
     end
 
-    def save_comment_count
+    def init_comment_count
       @comment_count = @html_doc.css('.b-tree-twig').length
     end
 

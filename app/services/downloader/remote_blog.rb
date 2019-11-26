@@ -118,6 +118,7 @@ module Downloader
         mirror_posts(posts)
       end
       create_index_file(posts)
+      rebuild_index_file(cached: true)
     end
     
     private

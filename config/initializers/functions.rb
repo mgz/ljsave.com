@@ -13,6 +13,6 @@ def read_url(url, opts: {})
     opts[:proxy] = URI.parse(proxy)
     opts['User-Agent'] = OPERA_USERAGENT
   end
-  
-  return open(url, opts).read
+
+  return URI.open(url, opts).read
 end

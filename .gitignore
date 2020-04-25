@@ -40,3 +40,6 @@ target
 /scraper/cache
 /.env
 /public/testlj
+.DS_Store
+/.generators
+/.rakeTasks

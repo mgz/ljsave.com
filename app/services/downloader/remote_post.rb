@@ -73,12 +73,17 @@ module Downloader
         # raise e
         puts "Error for #{self.url}:"
         puts e.inspect
+        delete_cached_html
         return false
       end
     end
 
     def cached_file_path
       return "#{@blog.cached_posts_dir}/#{self.post_id}.html"
+    end
+
+    def delete_cached_html
+      File.delete cached_file_path if File.exists? cached_file_path
     end
 
     def to_s
@@ -152,9 +157,13 @@ module Downloader
       @browser.execute_script("if(document.getElementById('comments')){document.getElementById('comments').scrollIntoView(true)}")
     end
 
-    def prepare_browser
-      @browser = Chrome.create(headless: true, typ: 'desktop')
+    def prepare_browser(retry_no = 0)
+      @browser ||= Chrome.create(headless: true, typ: 'desktop')
       @browser.navigate.to(@url + '#comments')
+      if @browser.page_source.include? 'This site can’t be reached'
+        raise ProxyError if retry_no > 5
+        return prepare_browser(retry_no + 1)
+      end
       return @browser
     end
 

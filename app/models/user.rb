@@ -3,19 +3,19 @@ class User
   extend ActiveModel::Naming
 
   attr_reader :name
-  
+
   def initialize(username)
     @name = username
   end
-  
+
   def to_param
     return @name
   end
-  
+
   def get_url
     return "/user/#{@name}"
   end
-  
+
   def self.downloaded_users
     dirs = Dir.each_child('public/lj')
     return @@downloaded_users ||= dirs.map do |sub|
@@ -24,11 +24,11 @@ class User
       end
     end.compact
   end
-  
+
   def post_count
     return posts_hash['posts'].size
   end
-  
+
   def posts_hash
     return JSON.parse(File.read("public/lj/#{@name}/#{@name}.json"))
   end

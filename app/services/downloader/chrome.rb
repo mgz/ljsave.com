@@ -9,6 +9,7 @@ end
 
 module Downloader
   class ProxyError < StandardError; end
+
   class Chrome
     def self.create(headless: true, typ: 'desktop')
       # `killall chromium-browser > /dev/null 2>&1`

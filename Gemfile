@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.0.0'
@@ -21,9 +20,7 @@ gem 'turbolinks', '~> 5'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
-
-# Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.1.0', require: false
+gem 'webdrivers'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -54,7 +51,7 @@ gem 'recap'
 gem 'slim-rails'
 gem 'sitemap_generator'
 gem 'jquery-rails'
-gem 'actionpack-action_caching', git: 'https://github.com/rails/actionpack-action_caching'
+gem 'actionpack-action_caching'
 gem 'parallel'
 gem 'tty-progressbar'
 gem 'dotenv-rails'

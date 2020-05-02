@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/rails/actionpack-action_caching
-  revision: ab65ebe6633f90d1c18c0e50941f6457afbe0a1e
-  specs:
-    actionpack-action_caching (1.2.1)
-      actionpack (>= 4.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -32,6 +25,8 @@ GEM
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
+    actionpack-action_caching (1.2.1)
+      actionpack (>= 4.0.0)
     actiontext (6.0.2.2)
       actionpack (= 6.0.2.2)
       activerecord (= 6.0.2.2)
@@ -75,8 +70,6 @@ GEM
     bindex (0.8.1)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    bootsnap (1.4.6)
-      msgpack (~> 1.0)
     builder (3.2.4)
     byebug (11.1.3)
     capistrano (2.15.9)
@@ -135,7 +128,6 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.14.0)
-    msgpack (1.3.3)
     net-scp (3.0.0)
       net-ssh (>= 2.6.5, < 7.0.0)
     net-sftp (3.0.0)
@@ -262,6 +254,10 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webdrivers (4.2.0)
+      nokogiri (~> 1.6)
+      rubyzip (>= 1.3.0)
+      selenium-webdriver (>= 3.0, < 4.0)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.4)
@@ -273,11 +269,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  actionpack-action_caching!
+  actionpack-action_caching
   awesome_print
   better_errors
   binding_of_caller
-  bootsnap (>= 1.1.0)
   byebug
   capybara (>= 2.15)
   chromedriver-helper
@@ -300,6 +295,7 @@ DEPENDENCIES
   tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
+  webdrivers
 
 BUNDLED WITH
    1.17.3

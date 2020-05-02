@@ -160,8 +160,10 @@ module Downloader
     def prepare_browser(retry_no = 0)
       @browser ||= Chrome.create(headless: true, typ: 'desktop')
       @browser.navigate.to(@url + '#comments')
-      if @browser.page_source.include? 'This site can’t be reached'
+      if @browser.page_source.include?('This site can’t be reached') || @browser.page_source.length < 500
         raise ProxyError if retry_no > 5
+        puts "*** RETRYING - #{retry_no + 1}"
+        sleep 0.5
         return prepare_browser(retry_no + 1)
       end
       return @browser
